@@ -117,11 +117,11 @@ on every restart would lose all documents and the audit log.
 1. Get the code onto PythonAnywhere: in a Bash console, `git clone` the repository
    (a private repository needs a GitHub personal access token), or upload a zip in the
    Files tab.
-2. `mkvirtualenv --python=python3.11 trustvault`, then
+2. `mkvirtualenv --python=python3.12 trustvault`, then
    `pip install -r ~/trustvault/requirements.txt`.
 3. Create `~/trustvault/.env` with **new** keys (not your local ones),
    `SESSION_COOKIE_SECURE=1`, `TRUST_PROXY=1` and `FLASK_DEBUG=0`.
-4. Web tab → Add a new web app → Manual configuration → Python 3.11. Set the
+4. Web tab → Add a new web app → Manual configuration → Python 3.12. Set the
    virtualenv to `~/.virtualenvs/trustvault`, and replace the WSGI file's contents with:
    ```python
    import sys
