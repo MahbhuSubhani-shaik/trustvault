@@ -37,6 +37,8 @@ def create_app(test_config=None):
     os.makedirs(app.instance_path, exist_ok=True)
     if not app.config["DATABASE"]:
         app.config["DATABASE"] = os.path.join(app.instance_path, "trustvault.sqlite3")
+    if not app.config["UPLOAD_DIR"]:
+        app.config["UPLOAD_DIR"] = os.path.join(app.instance_path, "uploads")
 
     if app.config["TRUST_PROXY"]:
         app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)

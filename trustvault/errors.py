@@ -23,7 +23,19 @@ def register(app):
             400,
         )
 
-    # Everything else (400, 404, 405, 413, 500...) shares one generic page.
+    @app.errorhandler(413)
+    def too_large(error):
+        return (
+            render_template(
+                "errors/error.html",
+                code=413,
+                title="File too large",
+                message="Files can be at most 10 MB. Nothing was uploaded.",
+            ),
+            413,
+        )
+
+    # Everything else (400, 404, 405, 500...) shares one generic page.
     # Flask checks handlers by status code first, so 403 still uses the one above.
     @app.errorhandler(HTTPException)
     def http_error(error):

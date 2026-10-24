@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% from "_forms.html" import csrf %}
+{% block title %}{{ doc.filename }}{% endblock %}
+{% block content %}
+<a class="back-link" href="{{ url_for('documents.index') }}">← Documents</a>
+
+<header class="doc-header">
+  <div class="doc-header__main">
+    <span class="ext-badge ext-badge--lg" aria-hidden="true">{{ doc.file_type | upper }}</span>
+    <div class="doc-header__text">
+      <h1 class="doc-title">{{ doc.filename }}</h1>
+      <div class="doc-meta">
+        <span>{{ 'Owned by you' if permission == 'owner' else 'Owned by ' ~ owner_name }}</span>
+        <span>{{ doc.size | filesize }}</span>
+        <span>Uploaded {{ doc.created_at | ist }}</span>
+        {% if intact %}<span class="pill pill-ok">Integrity verified</span>
+        {% else %}<span class="pill pill-danger">Integrity check failed</span>{% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="actions">
+    {% if permission in ('owner', 'download') %}
+    <a class="btn btn-primary" href="{{ url_for('documents.download', doc_id=doc.id) }}" data-busy-link="Checking integrity…">Download</a>
+    {% endif %}
+    {% if permission == 'owner' %}
+    {# Delete asks for confirmation without JavaScript: the real button is
+       inside a <details> that has to be opened first. #}
+    <details class="confirm">
+      <summary class="btn btn-danger">Delete</summary>
+      <div class="glass confirm__panel">
+        <p>Delete this file for you and everyone it’s shared with? This can’t be undone. The audit trail keeps a record.</p>
+        <form method="post" action="{{ url_for('documents.delete', doc_id=doc.id) }}" data-busy="Deleting…">
+          {{ csrf() }}
+          <button class="btn btn-danger btn-sm" type="submit">Delete permanently</button>
+        </form>
+      </div>
+    </details>
+    {% endif %}
+  </div>
+</header>
+
+<div class="doc-grid">
+  <div class="doc-grid__col">
+    {% if permission == 'view' %}
+    <section class="glass panel">
+      <h2 class="panel-title">View only</h2>
+      <p class="panel-text">The owner shared this file with you to view its details. Downloading it needs the “Can download” permission.</p>
+    </section>
+    {% endif %}
+
+    <section class="glass panel" aria-labelledby="integrity-heading">
+      <h2 class="panel-title" id="integrity-heading">File integrity</h2>
+      <div class="hint">SHA-256 at upload</div>
+      <code class="hash-box">{{ doc.sha256 }}</code>
+      <p class="panel-text">Recomputed on every view and download. A mismatch blocks the download and writes <span class="mono">file.integrity_fail</span> to the log.</p>
+    </section>
+  </div>
+</div>
+{% endblock %}

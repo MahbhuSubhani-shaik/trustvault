@@ -1,4 +1,6 @@
 {% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% from "_forms.html" import csrf %}
 {% block title %}Documents{% endblock %}
 {% block content %}
 <header class="page-header">
@@ -6,9 +8,87 @@
     <h1 class="page-title">Documents</h1>
     <p class="page-subtitle">You only see files you own or that were shared with you.</p>
   </div>
+  <form class="search" method="get" action="{{ url_for('documents.index') }}" role="search">
+    <input type="hidden" name="filter" value="{{ tab }}">
+    <label class="sr-only" for="q">Search documents</label>
+    <input class="input search__input" id="q" name="q" type="search" placeholder="Search by name" value="{{ query }}">
+    <button class="btn btn-secondary" type="submit">Search</button>
+  </form>
 </header>
 
-{% if not documents %}
+<section class="glass upload-panel" aria-labelledby="upload-heading">
+  <form class="upload-form" method="post" action="{{ url_for('documents.upload') }}" enctype="multipart/form-data" data-busy="Uploading…">
+    {{ csrf() }}
+    {# The file input covers the whole drop zone (invisible), so dropping a
+       file onto it works without any JavaScript. #}
+    <label class="dropzone">
+      {{ icon('upload', 28) }}
+      <span class="dropzone__title" id="upload-heading">Drop a file or <span class="dropzone__browse">browse</span></span>
+      <span class="dropzone__hint" id="file-status">PDF, DOCX, XLSX, PNG, JPG, TXT · up to 10 MB</span>
+      <input class="dropzone__input" id="file" name="file" type="file" required
+             accept=".pdf,.docx,.xlsx,.png,.jpg,.jpeg,.txt" data-max-bytes="{{ max_bytes }}" aria-describedby="file-status">
+    </label>
+    <button class="btn btn-primary" type="submit">Upload</button>
+  </form>
+  <ul class="facts">
+    <li>Type checked by file signature, not just the extension</li>
+    <li>Stored under a random ID outside the web root</li>
+    <li>SHA-256 recorded at upload, checked on every download</li>
+  </ul>
+</section>
+
+<nav class="tabs" aria-label="Filter documents">
+  {% for key, label in [('all', 'All'), ('mine', 'Owned by me'), ('shared', 'Shared with me')] %}
+  <a class="tab" href="{{ url_for('documents.index', filter=key, q=query or None) }}"{% if tab == key %} aria-current="page"{% endif %}>{{ label }} <span class="tab__count">{{ counts[key] }}</span></a>
+  {% endfor %}
+</nav>
+
+{% if documents %}
+<div class="glass table-wrap">
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Name</th>
+        <th scope="col">Owner</th>
+        <th scope="col">Your access</th>
+        <th scope="col">Shared with</th>
+        <th scope="col">Size</th>
+        <th scope="col">Last activity</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for d in documents %}
+      <tr>
+        <td>
+          <a class="doc-link" href="{{ url_for('documents.show', doc_id=d.id) }}">
+            <span class="ext-badge" aria-hidden="true">{{ d.file_type | upper }}</span>{{ d.filename }}
+          </a>
+        </td>
+        <td class="muted">{{ 'you' if d.permission == 'owner' else d.owner_name }}</td>
+        <td>
+          {% if d.permission == 'owner' %}<span class="pill pill-owner">Owner</span>
+          {% elif d.permission == 'download' %}<span class="pill pill-ok">Can download</span>
+          {% else %}<span class="pill pill-warn">View only</span>{% endif %}
+        </td>
+        <td class="muted">
+          {%- if d.permission != 'owner' or not d.share_count %}—
+          {%- else %}{{ d.share_count }} {{ 'person' if d.share_count == 1 else 'people' }}
+            {%- if d.next_expiry %} · expires {{ d.next_expiry | ist_day }}{% endif %}
+          {%- endif -%}
+        </td>
+        <td class="muted mono">{{ d.size | filesize }}</td>
+        <td class="muted">
+          {%- if d.permission == 'owner' %}{{ d.last_text }} · {{ d.last_at | ago }}
+          {%- else %}Shared with you · {{ d.shared_at | ago }}{% endif -%}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% elif query %}
+<p class="empty">No documents match “{{ query }}”.</p>
+{% else %}
 <p class="empty">Nothing here yet.</p>
 {% endif %}
 {% endblock %}

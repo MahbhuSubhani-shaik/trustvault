@@ -13,6 +13,18 @@ CREATE TABLE IF NOT EXISTS users (
     created_at       TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS documents (
+    id            TEXT PRIMARY KEY,               -- random and unguessable; used in URLs
+    owner_id      INTEGER NOT NULL REFERENCES users(id),
+    filename      TEXT NOT NULL,                  -- the uploader's name for it: shown, never used as a path
+    storage_name  TEXT NOT NULL UNIQUE,           -- random name of the file on disk
+    file_type     TEXT NOT NULL,                  -- detected from the bytes: pdf, docx, xlsx, png, jpg, txt
+    size          INTEGER NOT NULL,
+    sha256        TEXT NOT NULL,                  -- of the bytes as uploaded
+    created_at    TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS documents_by_owner ON documents (owner_id);
+
 -- Append-only. The app never updates or deletes a row, and the triggers below
 -- make SQLite refuse to as well. The hash chain catches anyone who gets round
 -- the triggers by editing the database file directly.

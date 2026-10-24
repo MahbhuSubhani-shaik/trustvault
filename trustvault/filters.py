@@ -16,6 +16,12 @@ def ist_short(value):
     return f"{dt.day} {dt:%b, %H:%M}"
 
 
+def ist_day(value):
+    """'2026-10-31T18:29:59+00:00' -> '31 Oct'"""
+    dt = from_db(value).astimezone(IST)
+    return f"{dt.day} {dt:%b}"
+
+
 def ago(value):
     seconds = (now() - from_db(value)).total_seconds()
     if seconds < 60:
@@ -47,5 +53,6 @@ def short_hash(value):
 
 def register(app):
     app.jinja_env.filters.update(
-        ist=ist, ist_short=ist_short, ago=ago, filesize=filesize, short_hash=short_hash
+        ist=ist, ist_short=ist_short, ist_day=ist_day, ago=ago, filesize=filesize,
+        short_hash=short_hash,
     )

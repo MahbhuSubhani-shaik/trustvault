@@ -36,6 +36,44 @@
     });
   });
 
+  // Upload: show the chosen file, and stop a file over 10 MB before it is
+  // sent (the server rejects it anyway; this just saves the wait).
+  var fileInput = document.querySelector("input[type=file][data-max-bytes]");
+  if (fileInput) {
+    var status = document.getElementById("file-status");
+    var zone = fileInput.closest(".dropzone");
+    var defaultText = status.textContent;
+    fileInput.addEventListener("change", function () {
+      var file = fileInput.files[0];
+      var tooBig = file && file.size > Number(fileInput.dataset.maxBytes);
+      fileInput.setCustomValidity(tooBig ? "Files can be at most 10 MB." : "");
+      status.classList.toggle("is-error", Boolean(tooBig));
+      if (!file) status.textContent = defaultText;
+      else if (tooBig) status.textContent = file.name + " is over 10 MB. Choose a smaller file.";
+      else status.textContent = file.name + " · " + (file.size / 1024 / 1024).toFixed(2) + " MB · ready to upload";
+    });
+    ["dragenter", "dragover"].forEach(function (type) {
+      fileInput.addEventListener(type, function () { zone.classList.add("is-dragging"); });
+    });
+    ["dragleave", "drop"].forEach(function (type) {
+      fileInput.addEventListener(type, function () { zone.classList.remove("is-dragging"); });
+    });
+  }
+
+  // Download: the server re-hashes the file before sending it. Show that
+  // while it happens. A download doesn't leave the page, so reset after a bit.
+  document.querySelectorAll("a[data-busy-link]").forEach(function (link) {
+    var label = link.textContent;
+    link.addEventListener("click", function () {
+      link.textContent = link.dataset.busyLink;
+      link.setAttribute("aria-busy", "true");
+      setTimeout(function () {
+        link.textContent = label;
+        link.removeAttribute("aria-busy");
+      }, 3000);
+    });
+  });
+
   // Register: tick the password rules as the user types.
   var password = document.getElementById("password");
   var rules = document.getElementById("password-rules");
