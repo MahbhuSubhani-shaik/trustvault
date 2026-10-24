@@ -1,0 +1,13 @@
+# Secrets
+.env
+
+# Database and uploaded files
+instance/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+htmlcov/

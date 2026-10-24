@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% block title %}{{ title }}{% endblock %}
+{% block shell %}
+<main class="card-shell">
+  <div class="glass glass-card glass-card--wide">
+    <div class="status-mark">
+      <span class="status-mark__icon">{{ icon('alert', 26) }}</span>
+      <span class="status-mark__code mono">Error {{ code }}</span>
+    </div>
+    <h1 class="card-title">{{ title }}</h1>
+    <p class="lead">{{ message }}</p>
+    <div class="actions">
+      <a class="btn btn-primary" href="{{ url_for('index') }}">Back to TrustVault</a>
+    </div>
+  </div>
+</main>
+{% endblock %}

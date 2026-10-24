@@ -1,0 +1,11 @@
+{# Flash messages. Jinja autoescapes {{ message }}, so a username or file name
+   containing HTML is shown as text, never run. #}
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="flashes">
+  {% for category, message in messages %}
+  <div class="alert alert-{{ category if category in ('error', 'success') else 'info' }}" role="{{ 'alert' if category == 'error' else 'status' }}">{{ message }}</div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endwith %}

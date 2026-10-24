@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Documents{% endblock %}
+{% block content %}
+<header class="page-header">
+  <div class="page-header__text">
+    <h1 class="page-title">Documents</h1>
+    <p class="page-subtitle">You only see files you own or that were shared with you.</p>
+  </div>
+</header>
+
+{% if not documents %}
+<p class="empty">Nothing here yet.</p>
+{% endif %}
+{% endblock %}
