@@ -29,6 +29,7 @@
     <a class="brand" href="{{ url_for('documents.index') }}">{{ logo() }}<span>TrustVault</span></a>
     <div class="nav">
       {{ nav_link('documents.index', 'Documents', 'file') }}
+      {{ nav_link('audit.index', 'Audit trail', 'link') }}
     </div>
     {% if g.user %}
     <div class="user-chip">

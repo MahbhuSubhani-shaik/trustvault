@@ -51,8 +51,24 @@ def short_hash(value):
     return f"{value[:4]}…{value[-4:]}" if value else "—"
 
 
+ACTION_TONES = {
+    "danger": {"access.denied", "auth.login_failed", "share.revoke", "doc.delete",
+               "file.integrity_fail", "doc.upload_rejected"},
+    "info": {"share.grant", "doc.upload", "user.role_change"},
+    "ok": {"doc.download", "auth.login"},
+}
+
+
+def action_tone(action):
+    """Colour class for an action name in the audit table."""
+    for tone, actions in ACTION_TONES.items():
+        if action in actions:
+            return tone
+    return "neutral"
+
+
 def register(app):
     app.jinja_env.filters.update(
         ist=ist, ist_short=ist_short, ist_day=ist_day, ago=ago, filesize=filesize,
-        short_hash=short_hash,
+        short_hash=short_hash, action_tone=action_tone,
     )

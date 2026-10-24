@@ -41,6 +41,28 @@ def _describe_last(doc):
     return f"{label}{joiner} {doc['last_actor']}"
 
 
+# How an entry reads in "Activity on this file": phrase and dot colour.
+ACTIVITY = {
+    "doc.upload": ("uploaded the file", "info"),
+    "doc.view": ("viewed the file", "neutral"),
+    "doc.download": ("downloaded the file", "ok"),
+    "share.grant": ("shared it with", "info"),
+    "share.revoke": ("revoked access for", "danger"),
+    "access.denied": ("was denied access:", "danger"),
+    "file.integrity_fail": ("hit a failed integrity check", "danger"),
+}
+
+
+def _activity(event, doc):
+    phrase, tone = ACTIVITY.get(event["action"], (event["action"], "neutral"))
+    # Targets start with the file name ("Vendor.pdf → ravi · view only");
+    # the rest is the detail worth showing.
+    detail = ""
+    if event["target"].startswith(doc["filename"]):
+        detail = event["target"][len(doc["filename"]):].lstrip(" ·→")
+    return {"text": f"{phrase} {detail}".strip(), "tone": tone}
+
+
 def _like_pattern(text):
     """Turn search text into a LIKE pattern that matches it literally."""
     escaped = text.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
@@ -151,8 +173,15 @@ def show(doc_id):
     db = get_db()
     owner = db.execute("SELECT username FROM users WHERE id = ?", (doc["owner_id"],)).fetchone()
 
-    shares, my_share = [], None
+    shares, my_share, activity = [], None, []
     if permission == "owner":
+        # The owner's own views are left out so they don't drown everything else.
+        events = db.execute(
+            "SELECT * FROM audit_log WHERE document_id = ?"
+            " AND NOT (action = 'doc.view' AND actor_id = ?) ORDER BY id DESC LIMIT 20",
+            (doc["id"], g.user["id"]),
+        ).fetchall()
+        activity = [dict(e, **_activity(e, doc)) for e in events]
         # Only the owner sees who else has access. Newest share per person:
         # live, expired or revoked.
         rows = db.execute(
@@ -174,7 +203,7 @@ def show(doc_id):
 
     return render_template(
         "document.html", doc=doc, permission=permission, owner_name=owner["username"],
-        intact=intact, shares=shares, my_share=my_share, now=now_db(),
+        intact=intact, shares=shares, my_share=my_share, activity=activity, now=now_db(),
         today=now().astimezone(IST).date().isoformat(),
     )
 

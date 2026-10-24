@@ -43,7 +43,7 @@ def create_app(test_config=None):
     if app.config["TRUST_PROXY"]:
         app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1)
 
-    from . import auth, cli, db, documents, errors, filters, security_headers
+    from . import audit_views, auth, cli, db, documents, errors, filters, security_headers
 
     db.init_app(app)
     # Every POST, PUT, PATCH and DELETE must carry the session's CSRF token, or
@@ -51,6 +51,7 @@ def create_app(test_config=None):
     csrf.init_app(app)
     app.register_blueprint(auth.bp)
     app.register_blueprint(documents.bp)
+    app.register_blueprint(audit_views.bp)
     errors.register(app)
     filters.register(app)
     security_headers.register(app)

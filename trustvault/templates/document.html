@@ -123,5 +123,29 @@
       <p class="panel-text">Recomputed on every view and download. A mismatch blocks the download and writes <span class="mono">file.integrity_fail</span> to the log.</p>
     </section>
   </div>
+
+  {% if permission == 'owner' %}
+  <section class="glass panel" aria-labelledby="activity-heading">
+    <div class="panel-head panel-head--row">
+      <h2 class="panel-title" id="activity-heading">Activity on this file</h2>
+      <a class="small-link" href="{{ url_for('audit.index') }}">Full audit trail →</a>
+    </div>
+    {% if activity %}
+    <ol class="timeline">
+      {% for e in activity %}
+      <li class="timeline__item">
+        <span class="dot dot--{{ e.tone }}" aria-hidden="true"></span>
+        <div class="timeline__body">
+          <div class="timeline__text"><b>{{ 'you' if e.actor_id == g.user.id else e.actor_name }}</b> {{ e.text }}</div>
+          <div class="timeline__meta mono">#{{ e.id }} · {{ e.created_at | ist_short }} · {{ e.ip }}</div>
+        </div>
+      </li>
+      {% endfor %}
+    </ol>
+    {% else %}
+    <p class="panel-text">No activity yet.</p>
+    {% endif %}
+  </section>
+  {% endif %}
 </div>
 {% endblock %}

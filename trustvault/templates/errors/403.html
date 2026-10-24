@@ -11,6 +11,12 @@
     </div>
     <h1 class="card-title">You don’t have access to this</h1>
     <p class="lead">It may not have been shared with you, the share may have expired, or the owner revoked it. If you think this is a mistake, ask the document’s owner.</p>
+    {% if entry %}
+    <div class="code-box mono">
+      <div>This attempt was recorded as audit entry #{{ entry.id }}</div>
+      <div class="code-box__meta">access.denied · {{ entry.created_at | ist }} · {{ entry.ip }}</div>
+    </div>
+    {% endif %}
     <div class="actions">
       <a class="btn btn-primary" href="{{ url_for('documents.index') }}">Back to documents</a>
     </div>

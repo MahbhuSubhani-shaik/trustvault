@@ -20,7 +20,7 @@ import json
 
 from flask import current_app, g, has_request_context, request
 
-from .db import transaction
+from .db import get_db, transaction
 from .timeutil import now_db
 
 GENESIS_HASH = "0" * 64  # prev_hash of the very first entry
@@ -50,7 +50,7 @@ def client_ip():
 
 
 def record(action, *, target="", document_id=None, owner_id=None, actor=None, actor_name=None):
-    """Append one entry and return its id (the entry number).
+    """Append one entry and return it as a dict (its "id" is the entry number).
 
     actor defaults to the signed-in user. owner_id says whose record this is:
     a member's audit page shows only rows with their id there.
@@ -80,4 +80,32 @@ def record(action, *, target="", document_id=None, owner_id=None, actor=None, ac
             " :target, :owner_id, :ip, :prev_hash, :hash)",
             row,
         )
-    return row["id"]
+    return row
+
+
+def verify_chain():
+    """Recompute every hash, oldest first, and report the first broken entry.
+
+    Two checks per entry:
+      1. its prev_hash equals the previous entry's hash: catches entries
+         that were deleted, inserted or reordered;
+      2. its hash equals HMAC(prev_hash + its contents): catches entries
+         whose contents were edited.
+
+    Limit: deleting entries from the *end* leaves a shorter chain that still
+    verifies. The head hash is shown on the audit page so it can be noted
+    somewhere else; see THREATS.md.
+    """
+    expected_prev = GENESIS_HASH
+    count = 0
+    for row in get_db().execute("SELECT * FROM audit_log ORDER BY id"):
+        if not hmac.compare_digest(row["prev_hash"], expected_prev):
+            return {"ok": False, "count": count, "broken_id": row["id"],
+                    "reason": "Its prev_hash doesn’t match the entry before it, so an entry "
+                              "was removed, inserted or changed."}
+        if not hmac.compare_digest(row["hash"], compute_hash(row["prev_hash"], row)):
+            return {"ok": False, "count": count, "broken_id": row["id"],
+                    "reason": "Its stored hash doesn’t match its contents."}
+        expected_prev = row["hash"]
+        count += 1
+    return {"ok": True, "count": count, "broken_id": None, "reason": None}

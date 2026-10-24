@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% from "_forms.html" import csrf %}
+{% block title %}Audit trail{% endblock %}
+{% block content %}
+<header class="page-header">
+  <div class="page-header__text">
+    <h1 class="page-title">Audit trail</h1>
+    <p class="page-subtitle">Append-only. Each entry stores the hash of the one before it, so editing or deleting any row breaks every hash after it.
+      {% if g.user.role == 'admin' %}As an admin you see every event.{% else %}You see events on files you own and on your own account; admins see everything.{% endif %}</p>
+  </div>
+  <div class="actions">
+    <a class="btn btn-secondary" href="{{ url_for('audit.export', **query_args) }}">Export CSV</a>
+    <form method="post" action="{{ url_for('audit.verify') }}" data-busy="Verifying…">
+      {{ csrf() }}
+      <button class="btn btn-primary" type="submit">{{ icon('shield') }}Verify chain</button>
+    </form>
+  </div>
+</header>
+
+<div role="status" aria-live="polite">
+  {% if result and result['ok'] %}
+  <div class="banner banner--ok">
+    {{ icon('check-circle', 22) }}
+    <div class="banner__text">
+      <b>Chain intact — {{ result['count'] }} of {{ result['count'] }} entries verified</b>
+      <span>Every hash was recomputed from its row and the previous hash. Nothing has been changed. This check was recorded as entry #{{ result['entry_id'] }}.</span>
+    </div>
+  </div>
+  {% elif result %}
+  <div class="banner banner--bad">
+    {{ icon('warning', 22) }}
+    <div class="banner__text">
+      <b>Tampering detected at entry #{{ result['broken_id'] }}</b>
+      <span>{{ result['reason'] }} Entries #{{ result['broken_id'] }}–#{{ result['last_id'] }} can’t be trusted. This check was recorded as entry #{{ result['entry_id'] }}.</span>
+    </div>
+  </div>
+  {% else %}
+  <div class="banner">
+    <span>{{ head.id if head else 0 }} entries in the chain. Verify recomputes every hash.</span>
+    {% if head %}<span class="mono hash-text" title="{{ head.hash }}">head {{ head.hash | short_hash }}</span>{% endif %}
+  </div>
+  {% endif %}
+</div>
+
+<form class="filters" method="get" action="{{ url_for('audit.index') }}">
+  <div class="field filters__field">
+    <label class="label" for="f-user">User</label>
+    <input class="input" id="f-user" name="user" type="text" placeholder="Any user" maxlength="64" value="{{ filters.user }}">
+  </div>
+  <div class="field filters__field">
+    <label class="label" for="f-action">Action</label>
+    <select class="select" id="f-action" name="action">
+      <option value="">All actions</option>
+      {% for a in actions %}<option{% if a == filters.action %} selected{% endif %}>{{ a }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="field filters__field filters__field--date">
+    <label class="label" for="f-from">From</label>
+    <input class="input" id="f-from" name="from" type="date" value="{{ filters['from'] }}">
+  </div>
+  <div class="field filters__field filters__field--date">
+    <label class="label" for="f-to">To</label>
+    <input class="input" id="f-to" name="to" type="date" value="{{ filters['to'] }}">
+  </div>
+  <div class="filters__buttons">
+    <button class="btn btn-secondary" type="submit">Filter</button>
+    {% if query_args %}<a class="small-link" href="{{ url_for('audit.index') }}">Clear</a>{% endif %}
+  </div>
+</form>
+
+{% if rows %}
+<div class="glass table-wrap">
+  <table class="table table--audit">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Time (IST)</th>
+        <th scope="col">User</th>
+        <th scope="col">Action</th>
+        <th scope="col">Target</th>
+        <th scope="col">IP</th>
+        <th scope="col">Prev hash</th>
+        <th scope="col">Hash</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in rows %}
+      {#- After a failed check: the broken entry and everything after it are suspect. -#}
+      {%- set suspect = result and not result['ok'] and r.id >= result['broken_id'] -%}
+      {%- set verified = result and result['ok'] and r.id <= result['last_id'] -%}
+      <tr class="{{ 'row-broken' if suspect and r.id == result['broken_id'] else ('row-suspect' if suspect else '') }}">
+        <td class="mono">{{ r.id }}</td>
+        <td class="muted nowrap">{{ r.created_at | ist_short }}</td>
+        <td class="strong">{{ r.actor_name or '—' }}</td>
+        <td><span class="tag tag--{{ r.action | action_tone }}">{{ r.action }}</span></td>
+        <td class="muted cell-target">{{ r.target or '—' }}</td>
+        <td class="muted mono">{{ r.ip }}</td>
+        <td class="muted mono" title="{{ r.prev_hash }}">{{ r.prev_hash | short_hash }}</td>
+        <td class="mono"><span class="hash-text{{ ' is-bad' if suspect else (' is-ok' if verified else '') }}" title="{{ r.hash }}">{{ r.hash | short_hash }}</span></td>
+      </tr>
+      {%- endfor %}
+    </tbody>
+  </table>
+</div>
+<div class="pager">
+  <span>Showing {{ first_shown }}–{{ last_shown }} of {{ total }} (newest first)</span>
+  <span class="pager__links">
+    {% if page > 1 %}<a href="{{ url_for('audit.index', page=page - 1, **query_args) }}">← Newer</a>{% endif %}
+    {% if page < pages %}<a href="{{ url_for('audit.index', page=page + 1, **query_args) }}">Older →</a>{% endif %}
+  </span>
+</div>
+{% else %}
+<p class="empty">No entries match these filters.</p>
+{% endif %}
+{% endblock %}
