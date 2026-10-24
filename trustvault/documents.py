@@ -1,18 +1,21 @@
-"""Documents: list, upload, view, download, delete.
+"""Documents: list, upload, view, download, share, revoke, delete.
 
 Every route that touches one document starts with access.authorize(), which
 loads it and checks g.user's permission. See access.py for the rules.
 """
 import io
 import secrets
+from datetime import date, datetime, time
 
-from flask import Blueprint, flash, g, redirect, render_template, request, send_file, url_for
+from flask import (
+    Blueprint, abort, flash, g, redirect, render_template, request, send_file, url_for,
+)
 
 from . import audit, files
-from .access import DOWNLOAD, MANAGE, VIEW, authorize
+from .access import DOWNLOAD, MANAGE, VIEW, active_share_sql, authorize
 from .auth import login_required
 from .db import get_db, transaction
-from .timeutil import now_db
+from .timeutil import IST, now, now_db, to_db
 
 bp = Blueprint("documents", __name__)
 
@@ -49,21 +52,31 @@ def _like_pattern(text):
 def index():
     tab = request.args.get("filter", "all")
     query = request.args.get("q", "").strip()[:100]
-    # Only documents the user owns. Nothing else is ever selected here, so
-    # there is nothing to filter out afterwards.
+    # The WHERE clause is the authorisation: a row comes back only if the
+    # user owns the document or holds a live share for it. Nothing else is
+    # ever selected, so there is nothing to filter out afterwards.
     rows = get_db().execute(
-        """
-        SELECT d.*, 'owner' AS permission,
+        f"""
+        SELECT d.*, u.username AS owner_name,
+               CASE WHEN d.owner_id = :me THEN 'owner' ELSE s.permission END AS permission,
+               s.created_at AS shared_at,
+               (SELECT COUNT(*) FROM shares x
+                 WHERE x.document_id = d.id AND {active_share_sql('x')}) AS share_count,
+               (SELECT MIN(x.expires_at) FROM shares x
+                 WHERE x.document_id = d.id AND {active_share_sql('x')}) AS next_expiry,
                a.action AS last_action, a.actor_name AS last_actor,
                a.actor_id AS last_actor_id, a.created_at AS last_at
         FROM documents d
+        JOIN users u ON u.id = d.owner_id
+        LEFT JOIN shares s
+               ON s.document_id = d.id AND s.grantee_id = :me AND {active_share_sql('s')}
         LEFT JOIN audit_log a
                ON a.id = (SELECT MAX(id) FROM audit_log WHERE document_id = d.id)
-        WHERE d.owner_id = :me
+        WHERE (d.owner_id = :me OR s.id IS NOT NULL)
           AND (:q = '' OR d.filename LIKE :pattern ESCAPE '\\')
         ORDER BY COALESCE(a.id, 0) DESC
         """,
-        {"me": g.user["id"], "q": query, "pattern": _like_pattern(query)},
+        {"me": g.user["id"], "now": now_db(), "q": query, "pattern": _like_pattern(query)},
     ).fetchall()
 
     documents = [dict(row, last_text=_describe_last(row)) for row in rows]
@@ -135,11 +148,121 @@ def show(doc_id):
     doc, permission = authorize(doc_id, VIEW)
     intact = _check_integrity(doc) is not None
     audit.record("doc.view", document_id=doc["id"], owner_id=doc["owner_id"], target=doc["filename"])
-    owner = get_db().execute("SELECT username FROM users WHERE id = ?", (doc["owner_id"],)).fetchone()
+    db = get_db()
+    owner = db.execute("SELECT username FROM users WHERE id = ?", (doc["owner_id"],)).fetchone()
+
+    shares, my_share = [], None
+    if permission == "owner":
+        # Only the owner sees who else has access. Newest share per person:
+        # live, expired or revoked.
+        rows = db.execute(
+            "SELECT s.*, u.username FROM shares s JOIN users u ON u.id = s.grantee_id"
+            " WHERE s.document_id = ? ORDER BY s.id DESC",
+            (doc["id"],),
+        ).fetchall()
+        seen = set()
+        for row in rows:
+            if row["grantee_id"] not in seen:
+                seen.add(row["grantee_id"])
+                shares.append(row)
+    else:
+        my_share = db.execute(
+            "SELECT * FROM shares s WHERE s.document_id = :doc AND s.grantee_id = :me AND "
+            + active_share_sql("s"),
+            {"doc": doc["id"], "me": g.user["id"], "now": now_db()},
+        ).fetchone()
+
     return render_template(
         "document.html", doc=doc, permission=permission, owner_name=owner["username"],
-        intact=intact,
+        intact=intact, shares=shares, my_share=my_share, now=now_db(),
+        today=now().astimezone(IST).date().isoformat(),
     )
+
+
+PERMISSION_LABELS = {"view": "view only", "download": "can download"}
+
+
+@bp.post("/documents/<doc_id>/share")
+@login_required
+def share(doc_id):
+    doc, _ = authorize(doc_id, MANAGE)  # owner only
+    db = get_db()
+    username = request.form.get("username", "").strip()
+    permission = request.form.get("permission", "")
+    expires = request.form.get("expires", "").strip()
+
+    # Never trust the form: the <select> only offers two values, but anyone
+    # can post any value, so check it against the allowed set here.
+    problem = None
+    grantee = db.execute("SELECT id, username FROM users WHERE username = ?", (username,)).fetchone()
+    if permission not in PERMISSION_LABELS:
+        problem = "Choose “View only” or “Can download”."
+    elif grantee is None:
+        problem = "There’s no user with that username."
+    elif grantee["id"] == doc["owner_id"]:
+        problem = "That’s the owner. Owners always have full access."
+
+    expires_at, expiry_note = None, ""
+    if problem is None and expires:
+        try:
+            day = date.fromisoformat(expires)
+        except ValueError:
+            problem = "Enter the expiry as a date."
+        else:
+            if day < now().astimezone(IST).date():
+                problem = "The expiry date can’t be in the past."
+            else:
+                # "Expires 31 Oct" means access through the end of 31 Oct, IST.
+                expires_at = to_db(datetime.combine(day, time(23, 59, 59), tzinfo=IST))
+                expiry_note = f" · expires {day.day} {day:%b %Y}"
+
+    if problem:
+        flash(problem, "error")
+        return redirect(url_for(".show", doc_id=doc["id"]))
+
+    with transaction() as db:
+        # One live share per person: a new share replaces the old one.
+        replaced = db.execute(
+            "UPDATE shares SET revoked_at = ? WHERE document_id = ? AND grantee_id = ?"
+            " AND revoked_at IS NULL",
+            (now_db(), doc["id"], grantee["id"]),
+        ).rowcount
+        db.execute(
+            "INSERT INTO shares (document_id, grantee_id, permission, expires_at, created_at)"
+            " VALUES (?, ?, ?, ?, ?)",
+            (doc["id"], grantee["id"], permission, expires_at, now_db()),
+        )
+        audit.record(
+            "share.grant", document_id=doc["id"], owner_id=doc["owner_id"],
+            target=f"{doc['filename']} → {grantee['username']} · {PERMISSION_LABELS[permission]}"
+                   f"{expiry_note}{' · replaces earlier share' if replaced else ''}",
+        )
+    flash(f"Shared with {grantee['username']} ({PERMISSION_LABELS[permission]}{expiry_note}).", "success")
+    return redirect(url_for(".show", doc_id=doc["id"]))
+
+
+@bp.post("/documents/<doc_id>/shares/<int:share_id>/revoke")
+@login_required
+def revoke(doc_id, share_id):
+    doc, _ = authorize(doc_id, MANAGE)  # owner only
+    with transaction() as db:
+        # "AND s.document_id = ?" matters: the owner check above was for
+        # doc_id, so the share must belong to that same document. Without it,
+        # the owner of any document could revoke shares on someone else's by
+        # editing share_id in the URL.
+        target = db.execute(
+            "SELECT s.*, u.username FROM shares s JOIN users u ON u.id = s.grantee_id"
+            " WHERE s.id = ? AND s.document_id = ?",
+            (share_id, doc["id"]),
+        ).fetchone()
+        if target is None:
+            abort(404)
+        if target["revoked_at"] is None:
+            db.execute("UPDATE shares SET revoked_at = ? WHERE id = ?", (now_db(), target["id"]))
+            audit.record("share.revoke", document_id=doc["id"], owner_id=doc["owner_id"],
+                         target=f"{doc['filename']} → {target['username']}")
+    flash(f"Access revoked for {target['username']}. It takes effect on their next request.", "success")
+    return redirect(url_for(".show", doc_id=doc["id"]))
 
 
 @bp.get("/documents/<doc_id>/download")

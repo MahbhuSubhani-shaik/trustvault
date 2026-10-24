@@ -25,6 +25,20 @@ CREATE TABLE IF NOT EXISTS documents (
 );
 CREATE INDEX IF NOT EXISTS documents_by_owner ON documents (owner_id);
 
+CREATE TABLE IF NOT EXISTS shares (
+    id           INTEGER PRIMARY KEY,
+    document_id  TEXT NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
+    grantee_id   INTEGER NOT NULL REFERENCES users(id),
+    permission   TEXT NOT NULL CHECK (permission IN ('view', 'download')),
+    expires_at   TEXT,      -- UTC; access ends at this moment. NULL = no expiry
+    created_at   TEXT NOT NULL,
+    revoked_at   TEXT       -- set on revoke; the row is kept as a record
+);
+-- At most one live (unrevoked) share per person per document.
+CREATE UNIQUE INDEX IF NOT EXISTS shares_one_live
+    ON shares (document_id, grantee_id) WHERE revoked_at IS NULL;
+CREATE INDEX IF NOT EXISTS shares_by_grantee ON shares (grantee_id);
+
 -- Append-only. The app never updates or deletes a row, and the triggers below
 -- make SQLite refuse to as well. The hash chain catches anyone who gets round
 -- the triggers by editing the database file directly.

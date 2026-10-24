@@ -41,10 +41,78 @@
 
 <div class="doc-grid">
   <div class="doc-grid__col">
-    {% if permission == 'view' %}
-    <section class="glass panel">
-      <h2 class="panel-title">View only</h2>
-      <p class="panel-text">The owner shared this file with you to view its details. Downloading it needs the “Can download” permission.</p>
+    {% if permission == 'owner' %}
+    <section class="glass panel panel--roomy" aria-labelledby="share-heading">
+      <div class="panel-head">
+        <h2 class="panel-title" id="share-heading">Share with a person</h2>
+        <p class="panel-text">Only the owner can share. Access is checked on the server for every request.</p>
+      </div>
+      <form class="share-form" method="post" action="{{ url_for('documents.share', doc_id=doc.id) }}" data-busy="Sharing…">
+        {{ csrf() }}
+        <div class="field share-form__user">
+          <label class="label" for="share-username">Username</label>
+          <input class="input" id="share-username" name="username" type="text" required maxlength="30" autocomplete="off">
+        </div>
+        <div class="field share-form__opt">
+          <label class="label" for="share-permission">Permission</label>
+          <select class="select" id="share-permission" name="permission">
+            <option value="view">View only</option>
+            <option value="download">Can download</option>
+          </select>
+        </div>
+        <div class="field share-form__opt">
+          <label class="label" for="share-expires">Expires <span class="label-note">(optional)</span></label>
+          <input class="input" id="share-expires" name="expires" type="date" min="{{ today }}">
+        </div>
+        <button class="btn btn-secondary" type="submit">Share</button>
+      </form>
+    </section>
+
+    <section class="glass panel panel--roomy" aria-labelledby="who-heading">
+      <h2 class="panel-title" id="who-heading">Who has access</h2>
+      <ul class="people">
+        <li class="person">
+          <span class="avatar" aria-hidden="true">{{ g.user.username[:2] | upper }}</span>
+          <div class="person__text"><div class="person__name">{{ g.user.username }} (you)</div><div class="person__detail">Owner</div></div>
+        </li>
+        {% for s in shares %}
+        {% set expired = s.expires_at and s.expires_at <= now %}
+        <li class="person">
+          <span class="avatar avatar--muted" aria-hidden="true">{{ s.username[:2] | upper }}</span>
+          <div class="person__text">
+            <div class="person__name">{{ s.username }}</div>
+            <div class="person__detail">
+              {{- 'Can download' if s.permission == 'download' else 'View only' }} ·
+              {% if s.revoked_at %}revoked {{ s.revoked_at | ist_short }}
+              {%- elif expired %}expired {{ s.expires_at | ist_day }}
+              {%- elif s.expires_at %}expires {{ s.expires_at | ist }}
+              {%- else %}no expiry{% endif -%}
+            </div>
+          </div>
+          {% if s.revoked_at %}
+          <span class="pill pill-danger">Revoked · logged</span>
+          {% else %}
+          <form method="post" action="{{ url_for('documents.revoke', doc_id=doc.id, share_id=s.id) }}" data-busy="Revoking…">
+            {{ csrf() }}
+            <button class="btn btn-danger btn-sm" type="submit" aria-label="Revoke access for {{ s.username }}">Revoke</button>
+          </form>
+          {% endif %}
+        </li>
+        {% endfor %}
+      </ul>
+      {% if not shares %}<p class="panel-text">Not shared with anyone yet.</p>{% endif %}
+    </section>
+    {% else %}
+    <section class="glass panel" aria-labelledby="access-heading">
+      <h2 class="panel-title" id="access-heading">Your access</h2>
+      <p class="panel-text">
+        {{ owner_name }} shared this with you ·
+        {{ 'can download' if permission == 'download' else 'view only' }} ·
+        {{ 'expires ' ~ (my_share.expires_at | ist) if my_share.expires_at else 'no expiry' }}
+      </p>
+      {% if permission == 'view' %}
+      <p class="panel-text">You can see this file’s details. Downloading it needs the “Can download” permission.</p>
+      {% endif %}
     </section>
     {% endif %}
 

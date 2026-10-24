@@ -20,8 +20,20 @@ from flask import abort, g
 from werkzeug.exceptions import Forbidden
 
 from .db import get_db
+from .timeutil import now_db
 
 VIEW, DOWNLOAD, MANAGE = "view", "download", "manage"
+
+
+def active_share_sql(alias):
+    """SQL condition for "this share grants access right now". Needs :now bound.
+
+    Revoked or past its expiry means no access. Every query that decides
+    access through a share uses this one condition. (alias is always a fixed
+    string from our own code, never user input.)
+    """
+    return (f"{alias}.revoked_at IS NULL"
+            f" AND ({alias}.expires_at IS NULL OR {alias}.expires_at > :now)")
 
 ALLOWED = {
     VIEW: {"owner", "download", "view"},
@@ -44,8 +56,12 @@ def permission_for(user, document):
     """'owner', 'download', 'view' or None for this user and document."""
     if document["owner_id"] == user["id"]:
         return "owner"
-    # TODO(step 4): an active share grants 'view' or 'download'.
-    return None
+    share = get_db().execute(
+        "SELECT s.permission FROM shares s"
+        " WHERE s.document_id = :doc AND s.grantee_id = :user AND " + active_share_sql("s"),
+        {"doc": document["id"], "user": user["id"], "now": now_db()},
+    ).fetchone()
+    return share["permission"] if share else None
 
 
 def authorize(doc_id, action):

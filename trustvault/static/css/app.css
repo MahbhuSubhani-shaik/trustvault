@@ -585,6 +585,29 @@ option { background: #151B3D; color: var(--text); }
 }
 .doc-grid__col { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
 
+.panel--roomy { gap: 16px; }
+.panel-head { display: flex; flex-direction: column; gap: 4px; }
+.label-note { color: var(--text-faint); font-weight: 400; }
+
+.share-form { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+.share-form__user { flex: 2 1 200px; }
+.share-form__opt { flex: 1 1 150px; }
+
+.people { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; }
+.person {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, .1);
+}
+.person:last-child { border-bottom: 0; }
+.person__text { flex: 1 1 160px; min-width: 0; }
+.person__name { font-weight: 500; overflow-wrap: anywhere; }
+.person__detail { font-size: 13px; color: var(--text-faint); }
+.avatar--muted { background: rgba(255, 255, 255, .14); border: 1px solid rgba(255, 255, 255, .25); font-size: 13px; }
+
 /* Delete confirmation without JavaScript */
 .confirm { position: relative; }
 .confirm summary { list-style: none; }
