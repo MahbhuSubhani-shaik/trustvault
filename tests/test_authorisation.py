@@ -92,6 +92,14 @@ def test_stranger_does_not_see_document_in_list(setup):
     assert "Vendor contract" not in setup["kiran"].get("/documents").get_data(as_text=True)
 
 
+@pytest.mark.parametrize("query", ["%", "_", "' OR '1'='1", "\" OR 1=1 --", "Vendor%' --"])
+def test_search_cannot_widen_what_a_user_sees(setup, query):
+    """Search text goes in as a bound parameter with LIKE wildcards escaped,
+    so neither SQL nor wildcards can pull in other people's documents."""
+    html = setup["kiran"].get("/documents", query_string={"q": query}).get_data(as_text=True)
+    assert "Vendor contract" not in html
+
+
 def test_unknown_document_is_404(setup):
     assert setup["kiran"].get("/documents/no-such-document").status_code == 404
 

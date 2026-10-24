@@ -1,13 +1,17 @@
 """Entry point: `python app.py` for local development.
 
-A production server imports `app` from this module instead (for example
-`waitress-serve app:app`), so debug mode is never switched on there.
+A production server imports `app` from this module instead (on PythonAnywhere,
+the WSGI file does `from app import app as application`), so debug mode is
+never switched on there.
 """
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 
-load_dotenv()  # read .env before the app reads its config
+# Read .env from this folder, wherever the process was started from: hosts
+# like PythonAnywhere run the WSGI file from a different working directory.
+load_dotenv(Path(__file__).resolve().with_name(".env"))
 
 from trustvault import create_app  # noqa: E402  (must come after load_dotenv)
 
