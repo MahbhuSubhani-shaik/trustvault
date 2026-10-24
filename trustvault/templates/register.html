@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% from "_icons.html" import logo %}
+{% from "_forms.html" import csrf, error, invalid %}
+{% block title %}Create account{% endblock %}
+{% block shell %}
+<main class="card-shell">
+  <a class="brand brand--lg" href="{{ url_for('auth.login') }}"><span class="brand-mark">{{ logo(24) }}</span><span>TrustVault</span></a>
+  <form class="glass glass-card" method="post" data-busy="Creating account…">
+    {{ csrf() }}
+    <div class="card-head">
+      <h1 class="card-title">Create your account</h1>
+      <p class="card-subtitle">New accounts start with the <b>member</b> role. Only an admin can change roles.</p>
+    </div>
+    {% include "_flashes.html" %}
+
+    <div class="field">
+      <label class="label" for="username">Username</label>
+      <input class="input" id="username" name="username" type="text" autocomplete="username" required
+             minlength="3" maxlength="30" pattern="[A-Za-z0-9_]+" value="{{ form.username }}"{{ invalid(errors, 'username', 'username-hint') }}>
+      <span class="hint" id="username-hint">3–30 characters: letters, numbers, underscore.</span>
+      {{ error(errors, 'username') }}
+    </div>
+
+    <div class="field">
+      <label class="label" for="email">Email</label>
+      <input class="input" id="email" name="email" type="email" autocomplete="email" required maxlength="254"
+             placeholder="you@example.com" value="{{ form.email }}"{{ invalid(errors, 'email') }}>
+      {{ error(errors, 'email') }}
+    </div>
+
+    <div class="field">
+      <label class="label" for="password">Password</label>
+      <input class="input" id="password" name="password" type="password" autocomplete="new-password" required
+             minlength="12" maxlength="128"{{ invalid(errors, 'password', 'password-rules') }}>
+      {# The two data-rule items tick live (app.js). The common-passwords check
+         only happens on the server: the list is never sent to the browser. #}
+      <ul class="checklist" id="password-rules">
+        <li data-rule="length">At least 12 characters</li>
+        <li>Not in the common-passwords list (checked when you submit)</li>
+        <li data-rule="symbol">Includes a number or symbol (recommended)</li>
+      </ul>
+      {{ error(errors, 'password') }}
+    </div>
+
+    <div class="field">
+      <label class="label" for="confirm">Confirm password</label>
+      <input class="input" id="confirm" name="confirm" type="password" autocomplete="new-password" required
+             data-match="password"{{ invalid(errors, 'confirm') }}>
+      {% if errors.get('confirm') %}{{ error(errors, 'confirm') }}{% else %}<span class="field-error" id="confirm-error" hidden>Passwords don’t match.</span>{% endif %}
+    </div>
+
+    <button class="btn btn-primary btn-block" type="submit">Create account</button>
+    <p class="card-text center">Already registered? <a href="{{ url_for('auth.login') }}">Sign in</a></p>
+  </form>
+</main>
+{% endblock %}
