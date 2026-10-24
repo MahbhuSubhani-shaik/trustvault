@@ -35,7 +35,7 @@ def call(browser, method, template, setup, **data):
 # ------------------------------------------------------------------ login
 
 @pytest.mark.parametrize("method,path", [
-    ("get", "/documents"), ("post", "/documents/upload"),
+    ("get", "/dashboard"), ("get", "/documents"), ("post", "/documents/upload"),
     *DOC_ROUTES,
     ("get", "/audit"), ("post", "/audit/verify"), ("get", "/audit/export.csv"),
 ])
@@ -201,6 +201,24 @@ def test_deleting_a_document_removes_its_shares(setup, db):
     setup["ayaan"].post(f"/documents/{setup['doc']}/delete")
     assert db.execute("SELECT COUNT(*) FROM shares").fetchone()[0] == 0
     assert setup["meera"].get(f"/documents/{setup['doc']}").status_code == 404
+
+
+# ------------------------------------------------------------------ dashboard
+
+def dashboard_numbers(browser):
+    html = browser.get("/dashboard").get_data(as_text=True)
+    return [int(n) for n in re.findall(r'class="stat__value">(\d+)<', html)]
+
+
+def test_dashboard_only_counts_the_users_own_data(setup):
+    """[owned, shared with me, people with access, blocked attempts]"""
+    setup["kiran"].get(f"/documents/{setup['doc']}")  # a denied attempt on ayaan's file
+    assert dashboard_numbers(setup["ayaan"]) == [1, 0, 2, 1]
+    assert dashboard_numbers(setup["meera"]) == [0, 1, 0, 0]
+    # kiran's own denial is ayaan's record, not hers.
+    kiran = setup["kiran"].get("/dashboard").get_data(as_text=True)
+    assert dashboard_numbers(setup["kiran"]) == [0, 0, 0, 0]
+    assert "Vendor contract" not in kiran
 
 
 # ------------------------------------------------------------------ audit visibility

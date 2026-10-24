@@ -134,7 +134,7 @@ def test_session_cookie_flags(app):
 def test_login_never_redirects_off_site(anon, target):
     anon.register("ayaan")
     response = anon.login("ayaan", next_url=target)
-    assert response.headers["Location"] == "/documents"
+    assert response.headers["Location"] == "/dashboard"
 
 
 def test_login_follows_a_local_next(anon):

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<header class="page-header">
+  <div class="page-header__text">
+    <p class="eyebrow">Your secure workspace</p>
+    <h1 class="page-title">Welcome back, {{ g.user.username }}</h1>
+    <p class="page-subtitle">Your documents, who can see them, and everything that happened to them.</p>
+  </div>
+  <div class="actions">
+    <a class="btn btn-primary" href="{{ url_for('documents.index') }}#upload">{{ icon('plus') }}Upload document</a>
+  </div>
+</header>
+
+<div class="stats">
+  <a class="glass stat" href="{{ url_for('documents.index', filter='mine') }}">
+    <span class="stat__value">{{ stats.owned }}</span>
+    <span class="stat__label">Documents you own</span>
+  </a>
+  <a class="glass stat" href="{{ url_for('documents.index', filter='shared') }}">
+    <span class="stat__value">{{ stats.shared_with_me }}</span>
+    <span class="stat__label">Shared with you</span>
+  </a>
+  <div class="glass stat">
+    <span class="stat__value">{{ stats.people }}</span>
+    <span class="stat__label">People with access to your files</span>
+  </div>
+  <a class="glass stat{{ ' stat--alert' if stats.blocked else '' }}" href="{{ url_for('audit.index') }}">
+    <span class="stat__value">{{ stats.blocked }}</span>
+    <span class="stat__label">Blocked attempts · last 7 days</span>
+  </a>
+</div>
+
+<section class="glass panel" aria-labelledby="recent-heading">
+  <div class="panel-head panel-head--row">
+    <h2 class="panel-title" id="recent-heading">Recent activity</h2>
+    <a class="small-link" href="{{ url_for('audit.index') }}">All activity logs →</a>
+  </div>
+  {% if recent %}
+  <ol class="timeline">
+    {% for e in recent %}
+    {% set tone = e.action | action_tone %}
+    <li class="timeline__item">
+      <span class="dot dot--{{ tone }}" aria-hidden="true"></span>
+      <div class="timeline__body">
+        <div class="timeline__text">
+          <b>{{ 'you' if e.actor_id == g.user.id else (e.actor_name or 'someone') }}</b>
+          <span class="tag tag--{{ tone }}">{{ e.action }}</span>
+          {{ e.target }}
+        </div>
+        <div class="timeline__meta mono">#{{ e.id }} · {{ e.created_at | ist_short }} · {{ e.ip }}</div>
+      </div>
+    </li>
+    {% endfor %}
+  </ol>
+  {% else %}
+  <p class="panel-text">No activity yet.</p>
+  {% endif %}
+</section>
+{% endblock %}

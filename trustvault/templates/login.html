@@ -2,12 +2,33 @@
 {% from "_icons.html" import logo %}
 {% from "_forms.html" import csrf %}
 {% block title %}Sign in{% endblock %}
+{% block body_class %}theme-sakura{% endblock %}
 {% block shell %}
+{# Decoration only: hidden from screen readers. The tree is drawn by
+   tools/make_sakura.py; all the motion is CSS in app.css. #}
+<div class="sakura" aria-hidden="true">
+  <div class="sakura__glow"></div>
+  <div class="sakura__tree">
+    <img class="sakura__layer" src="{{ url_for('static', filename='img/sakura-trunk.svg') }}" alt="">
+    <img class="sakura__layer sakura__bloom sakura__bloom--a" src="{{ url_for('static', filename='img/sakura-bloom-a.svg') }}" alt="">
+    <img class="sakura__layer sakura__bloom sakura__bloom--b" src="{{ url_for('static', filename='img/sakura-bloom-b.svg') }}" alt="">
+  </div>
+  {# The ground doesn't sway, so it sits outside the moving tree. #}
+  <img class="sakura__ground" src="{{ url_for('static', filename='img/sakura-ground.svg') }}" alt="">
+  {%- for _ in range(7) %}<span class="bokeh"></span>{% endfor %}
+</div>
+<div class="petals" aria-hidden="true">
+  {%- for _ in range(18) %}<span class="petal"><i></i></span>{% endfor -%}
+</div>
+
 <main class="login-shell">
   <div class="login-hero">
     <div class="brand brand--lg"><span class="brand-mark">{{ logo(26) }}</span><span>TrustVault</span></div>
     <div class="login-hero__text">
-      <h1 class="hero-title">Share documents. Keep a record nobody can quietly rewrite.</h1>
+      <p class="eyebrow">Secure document sharing with a tamper-evident audit trail</p>
+      <h1 class="hero-title">Share documents. Keep a record nobody can quietly
+        <span class="word-cycle"><span class="sr-only">rewrite.</span><span class="word-cycle__words" aria-hidden="true"><span>rewrite.</span><span>edit.</span><span>erase.</span></span></span>
+      </h1>
       <p class="hero-text">Every upload, view, share and revoke is written to a hash-chained log. Change one entry and the chain breaks.</p>
     </div>
     {# The design showed sample log rows here. Real rows would leak data to

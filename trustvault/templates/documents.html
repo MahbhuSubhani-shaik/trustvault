@@ -16,7 +16,7 @@
   </form>
 </header>
 
-<section class="glass upload-panel" aria-labelledby="upload-heading">
+<section class="glass upload-panel" id="upload" aria-labelledby="upload-heading">
   <form class="upload-form" method="post" action="{{ url_for('documents.upload') }}" enctype="multipart/form-data" data-busy="Uploading…">
     {{ csrf() }}
     {# The file input covers the whole drop zone (invisible), so dropping a

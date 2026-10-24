@@ -97,7 +97,7 @@ def safe_next(target):
         parts = urlsplit(target)
         if not parts.scheme and not parts.netloc:
             return target
-    return url_for("documents.index")
+    return url_for("dashboard.index")
 
 
 # ---------------------------------------------------------------- register
@@ -124,7 +124,7 @@ def validate_registration(username, email, password, confirm):
 @bp.route("/register", methods=["GET", "POST"])
 def register():
     if g.user:
-        return redirect(url_for("documents.index"))
+        return redirect(url_for("dashboard.index"))
     form = {"username": "", "email": ""}
     errors = {}
     if request.method == "POST":
@@ -170,7 +170,7 @@ def _find_user(identifier):
 @bp.route("/login", methods=["GET", "POST"])
 def login():
     if g.user:
-        return redirect(url_for("documents.index"))
+        return redirect(url_for("dashboard.index"))
     error = None
     identifier = ""
     if request.method == "POST":

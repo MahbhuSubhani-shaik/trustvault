@@ -1,10 +1,8 @@
 {% from "_icons.html" import logo, icon %}
 {% from "_forms.html" import csrf %}
-{#- One nav item. It is marked current when the request is handled by the same
-    blueprint, so /documents/42 still highlights "Documents". -#}
-{% macro nav_link(endpoint, label, icon_name) -%}
-{%- set current = (request.endpoint or '').split('.')[0] == endpoint.split('.')[0] -%}
-<a class="nav-link" href="{{ url_for(endpoint) }}"{% if current %} aria-current="page"{% endif %}>{{ icon(icon_name) }}{{ label }}</a>
+{#- One nav item; `current` marks the page you are on. -#}
+{% macro nav_link(href, label, icon_name, current=False, sub=False) -%}
+<a class="nav-link{{ ' nav-link--sub' if sub else '' }}" href="{{ href }}"{% if current %} aria-current="page"{% endif %}>{{ icon(icon_name) }}<span>{{ label }}</span></a>
 {%- endmacro %}
 <!doctype html>
 <html lang="en">
@@ -15,7 +13,7 @@
   <link rel="icon" href="{{ url_for('static', filename='img/logo.svg') }}" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@300;400;500;600;700&amp;display=swap">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
   <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
 </head>
@@ -27,11 +25,31 @@
 <div class="app-shell">
   <nav class="glass sidebar" aria-label="Main">
     <a class="brand" href="{{ url_for('documents.index') }}">{{ logo() }}<span>TrustVault</span></a>
+    {#- Which page we're on: the blueprint, and on the list the category tab.
+        "Search" and "Upload" jump to those parts of the documents page. -#}
+    {%- set section = (request.endpoint or '').split('.')[0] -%}
+    {%- set category = request.args.get('filter') if request.endpoint == 'documents.index' else None -%}
+    {%- set docs = url_for('documents.index') -%}
     <div class="nav">
-      {{ nav_link('documents.index', 'Documents', 'file') }}
-      {{ nav_link('audit.index', 'Audit trail', 'link') }}
+      {{ nav_link(url_for('dashboard.index'), 'Dashboard', 'home', section == 'dashboard') }}
+      {{ nav_link(docs, 'My documents', 'file', section == 'documents' and category not in ('mine', 'shared')) }}
+      {{ nav_link(docs ~ '#q', 'Search documents', 'search') }}
+      <div class="nav-group">
+        <span class="nav-group__label">{{ icon('grid') }}Categories</span>
+        {{ nav_link(url_for('documents.index', filter='mine'), 'Owned by me', 'dot', category == 'mine', sub=True) }}
+        {{ nav_link(url_for('documents.index', filter='shared'), 'Shared with me', 'dot', category == 'shared', sub=True) }}
+      </div>
+      {{ nav_link(docs ~ '#upload', 'Upload document', 'plus') }}
+      {{ nav_link(url_for('audit.index'), 'Activity logs', 'clock', section == 'audit') }}
     </div>
     {% if g.user %}
+    <div class="vault-badge">
+      <span class="vault-badge__icon" aria-hidden="true">{{ icon('check', 20) }}</span>
+      <div>
+        <div class="vault-badge__title">Vault protected</div>
+        <div class="vault-badge__text">Access is checked on every request</div>
+      </div>
+    </div>
     <div class="user-chip">
       <span class="avatar" aria-hidden="true">{{ g.user.username[:2] | upper }}</span>
       <div class="user-chip__text">

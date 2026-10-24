@@ -163,6 +163,44 @@ option { background: #151B3D; color: var(--text); }
   border-color: rgba(255, 255, 255, .22);
 }
 
+.nav-group { display: flex; flex-direction: column; gap: 2px; }
+.nav-group__label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 0 12px;
+  color: rgba(226, 232, 255, .85);
+  font-size: 15px;
+}
+.nav-link--sub { min-height: 40px; padding-left: 40px; font-size: 14px; }
+.nav-link--sub svg { width: 12px; }
+
+.vault-badge {
+  margin-top: auto;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid rgba(110, 231, 183, .35);
+  border-radius: 14px;
+  background: rgba(16, 185, 129, .12);
+}
+.vault-badge__icon {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(16, 185, 129, .28);
+  color: var(--ok);
+}
+.vault-badge__title { font-size: 14px; font-weight: 600; color: #D1FAE5; }
+.vault-badge__text { font-size: 12px; color: #A7F3D0; }
+.vault-badge + .user-chip { margin-top: 0; }
+
 .user-chip {
   margin-top: auto;
   padding-top: 16px;
@@ -450,11 +488,30 @@ option { background: #151B3D; color: var(--text); }
   overflow-wrap: anywhere;
 }
 
+/* ---------- Dashboard ---------- */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; }
+.stat {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--text);
+  text-decoration: none;
+}
+a.stat:hover { color: var(--text); border-color: rgba(255, 255, 255, .32); }
+.stat__value { font-size: 34px; font-weight: 600; line-height: 1.1; }
+.stat__label { font-size: 14px; color: var(--text-muted); }
+.stat--alert { border-color: rgba(248, 113, 113, .45); }
+.stat--alert .stat__value { color: var(--danger); }
+.timeline__text .tag { margin: 0 4px; }
+
 /* ---------- Documents list ---------- */
 .search { display: flex; flex-wrap: wrap; gap: 8px; }
 .search__input { width: 260px; max-width: 100%; background: rgba(255, 255, 255, .08); }
 
-.upload-panel { padding: 20px; display: flex; flex-wrap: wrap; gap: 20px; align-items: center; }
+.upload-panel { padding: 20px; display: flex; flex-wrap: wrap; gap: 20px; align-items: center; scroll-margin-top: 20px; }
+/* Highlighted when reached from the menu's "Upload document" (#upload). */
+.upload-panel:target { border-color: var(--link); box-shadow: 0 0 0 2px rgba(165, 180, 252, .5), 0 12px 40px rgba(3, 6, 23, .35); }
 .upload-form { flex: 1 1 320px; display: flex; flex-direction: column; gap: 12px; }
 .dropzone {
   position: relative;
@@ -724,7 +781,190 @@ option { background: #151B3D; color: var(--text); }
 }
 .code-box__meta { color: var(--text-faint); }
 
+/* ---------- Sign-in page: night sakura ----------
+   The tree is three images drawn by tools/make_sakura.py. Everything that
+   moves is a CSS transform or opacity change, which the browser hands to the
+   GPU, so the animation doesn't redraw the page. */
+body.theme-sakura {
+  background-color: #060509;
+  background-image:
+    radial-gradient(46rem 34rem at 80% 72%, rgba(232, 96, 130, .16), transparent 65%),
+    radial-gradient(36rem 28rem at 6% 0%, rgba(99, 102, 241, .22), transparent 60%);
+}
+.theme-sakura .login-shell { position: relative; z-index: 1; }
+/* Clearer glass than elsewhere, so the tree shows through the card. */
+.theme-sakura .login-card {
+  background: rgba(14, 9, 18, .4);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  backdrop-filter: blur(10px) saturate(140%);
+}
+.theme-sakura .hero-title { font-size: clamp(40px, 4.6vw, 62px); font-weight: 300; letter-spacing: -.025em; }
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-faint);
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+.eyebrow::before { content: ""; flex: none; width: 40px; height: 1px; background: currentColor; opacity: .6; }
+
+/* "rewrite." / "edit." / "erase." take turns, blurring in and out. */
+.word-cycle__words { display: inline-grid; }
+.word-cycle__words > span {
+  grid-area: 1 / 1;
+  opacity: 0;
+  background: linear-gradient(90deg, #c4b5fd, #a5f3fc 35%, #fde68a 65%, #fbcfe8);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: word-cycle 9s ease-in-out infinite;
+}
+.word-cycle__words > span:nth-child(2) { animation-delay: 3s; }
+.word-cycle__words > span:nth-child(3) { animation-delay: 6s; }
+@keyframes word-cycle {
+  0% { opacity: 0; filter: blur(10px); transform: translateY(.12em); }
+  6%, 28% { opacity: 1; filter: blur(0); transform: none; }
+  34%, 100% { opacity: 0; filter: blur(10px); transform: translateY(-.12em); }
+}
+
+.sakura {
+  position: fixed;
+  /* Pushed partly off the right edge so the crown stays behind the sign-in
+     card and clear of the headline. */
+  right: clamp(-190px, -12vw, 0px);
+  bottom: 0;
+  z-index: 0;
+  height: min(90vh, 880px);
+  aspect-ratio: 1.041;
+  pointer-events: none;
+}
+.sakura__glow {
+  position: absolute;
+  inset: 0 6% 22% 6%;
+  background: radial-gradient(closest-side, rgba(255, 140, 170, .2), transparent);
+  animation: glow 7s ease-in-out infinite;
+}
+.sakura__tree, .sakura__layer { position: absolute; inset: 0; width: 100%; height: 100%; }
+/* The whole tree leans a little with the wind, pivoting at its foot... */
+.sakura__tree { transform-origin: 50.6% 100%; animation: sway-tree 8s ease-in-out infinite; will-change: transform; }
+/* ...and the two blossom layers sway further, out of step with each other,
+   pivoting where the trunk forks. */
+.sakura__bloom { transform-origin: 49.9% 70.5%; will-change: transform; }
+.sakura__bloom--a { animation: sway-bloom 6.4s ease-in-out infinite; }
+.sakura__bloom--b { animation: sway-bloom 5.1s ease-in-out -2.2s infinite; }
+@keyframes sway-tree { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-.7deg); } }
+@keyframes sway-bloom {
+  0%, 100% { transform: rotate(0deg) translateX(0); }
+  30% { transform: rotate(-1.7deg) translateX(-4px); }
+  50% { transform: rotate(-.9deg) translateX(-2px); }
+  75% { transform: rotate(-2deg) translateX(-5px); }
+}
+@keyframes glow { 0%, 100% { opacity: .75; } 50% { opacity: 1; } }
+
+/* The hill, as wide as the screen, numbers from tools/make_sakura.py. */
+.sakura__ground { position: absolute; left: -113%; top: 88.7%; width: 233.3%; height: 11.3%; }
+
+/* Soft out-of-focus lights drifting round the crown. */
+.bokeh {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--s);
+  height: var(--s);
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 190, 210, .5), rgba(255, 140, 175, .18) 60%, transparent);
+  animation: bokeh var(--t) ease-in-out var(--d) infinite alternate;
+  will-change: transform, opacity;
+}
+.bokeh:nth-child(4) { --x: 18%; --y: 22%; --s: 38px; --t: 9s; --d: -2s; }
+.bokeh:nth-child(5) { --x: 70%; --y: 12%; --s: 22px; --t: 7s; --d: -5s; }
+.bokeh:nth-child(6) { --x: 84%; --y: 44%; --s: 46px; --t: 11s; --d: -1s; }
+.bokeh:nth-child(7) { --x: 34%; --y: 52%; --s: 18px; --t: 8s; --d: -6s; }
+.bokeh:nth-child(8) { --x: 8%; --y: 60%; --s: 28px; --t: 10s; --d: -3s; }
+.bokeh:nth-child(9) { --x: 56%; --y: 30%; --s: 14px; --t: 6s; --d: -4s; }
+.bokeh:nth-child(10) { --x: 92%; --y: 74%; --s: 32px; --t: 12s; --d: -7s; }
+@keyframes bokeh {
+  0% { transform: translate(0, 0); opacity: .25; }
+  100% { transform: translate(-26px, -18px); opacity: .85; }
+}
+
+/* Petals: each starts over the crown or off the top-right edge and drifts
+   left and down (--dx, --dy) while the inner <i> flutters. */
+.petals { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.petal {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--s);
+  height: calc(var(--s) * .7);
+  opacity: 0;
+  animation: petal-drift var(--t) linear var(--d) infinite;
+  will-change: transform, opacity;
+}
+.petal i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 80% 0 80% 0;
+  background: linear-gradient(135deg, #fde7ee, #eea3bb 60%, #d97a98);
+  box-shadow: 0 0 8px rgba(255, 160, 190, .55);
+  animation: petal-flutter var(--f) ease-in-out infinite alternate;
+}
+@keyframes petal-drift {
+  0% { transform: translate(0, 0); opacity: 0; }
+  8% { opacity: .95; }
+  85% { opacity: .85; }
+  100% { transform: translate(var(--dx), var(--dy)); opacity: 0; }
+}
+@keyframes petal-flutter {
+  0% { transform: rotate(0deg) rotate3d(1, .4, 0, 0deg); }
+  100% { transform: rotate(220deg) rotate3d(1, .4, 0, 160deg); }
+}
+.petal:nth-child(1) { --x: 81%; --y: 1%; --s: 13px; --t: 13.4s; --d: -12.6s; --dx: -75vw; --dy: 59vh; --f: 2.1s; }
+.petal:nth-child(2) { --x: 102%; --y: 50%; --s: 9px; --t: 16.2s; --d: -3.5s; --dx: -91vw; --dy: 63vh; --f: 2.1s; }
+.petal:nth-child(3) { --x: 63%; --y: -3%; --s: 8px; --t: 15.0s; --d: -2.4s; --dx: -71vw; --dy: 56vh; --f: 2.3s; }
+.petal:nth-child(4) { --x: 70%; --y: 14%; --s: 14px; --t: 13.2s; --d: -8.5s; --dx: -112vw; --dy: 49vh; --f: 2.3s; }
+.petal:nth-child(5) { --x: 59%; --y: 35%; --s: 9px; --t: 14.2s; --d: -11.6s; --dx: -104vw; --dy: 35vh; --f: 2.5s; }
+.petal:nth-child(6) { --x: 67%; --y: 11%; --s: 11px; --t: 11.9s; --d: -1.4s; --dx: -72vw; --dy: 38vh; --f: 2.8s; }
+.petal:nth-child(7) { --x: 69%; --y: 20%; --s: 13px; --t: 17.3s; --d: -7.3s; --dx: -109vw; --dy: 22vh; --f: 2.8s; }
+.petal:nth-child(8) { --x: 88%; --y: 19%; --s: 11px; --t: 13.1s; --d: -10.0s; --dx: -75vw; --dy: 49vh; --f: 3.1s; }
+.petal:nth-child(9) { --x: 95%; --y: 53%; --s: 9px; --t: 12.2s; --d: -3.4s; --dx: -106vw; --dy: 50vh; --f: 3.1s; }
+.petal:nth-child(10) { --x: 75%; --y: 27%; --s: 15px; --t: 14.1s; --d: -6.1s; --dx: -98vw; --dy: 63vh; --f: 3.4s; }
+.petal:nth-child(11) { --x: 80%; --y: -5%; --s: 9px; --t: 11.2s; --d: -0.0s; --dx: -97vw; --dy: 40vh; --f: 2.0s; }
+.petal:nth-child(12) { --x: 94%; --y: 32%; --s: 12px; --t: 17.7s; --d: -1.7s; --dx: -88vw; --dy: 50vh; --f: 2.7s; }
+.petal:nth-child(13) { --x: 63%; --y: 43%; --s: 14px; --t: 19.0s; --d: -11.4s; --dx: -75vw; --dy: 34vh; --f: 1.9s; }
+.petal:nth-child(14) { --x: 103%; --y: 20%; --s: 10px; --t: 11.2s; --d: -3.5s; --dx: -114vw; --dy: 54vh; --f: 2.0s; }
+.petal:nth-child(15) { --x: 64%; --y: 54%; --s: 10px; --t: 17.1s; --d: -11.2s; --dx: -68vw; --dy: 64vh; --f: 3.3s; }
+.petal:nth-child(16) { --x: 100%; --y: -1%; --s: 10px; --t: 13.6s; --d: -11.1s; --dx: -93vw; --dy: 68vh; --f: 3.2s; }
+.petal:nth-child(17) { --x: 56%; --y: 31%; --s: 9px; --t: 17.6s; --d: -0.2s; --dx: -79vw; --dy: 52vh; --f: 3.3s; }
+.petal:nth-child(18) { --x: 58%; --y: 46%; --s: 9px; --t: 14.0s; --d: -10.8s; --dx: -88vw; --dy: 55vh; --f: 2.6s; }
+
+/* On narrow screens the form comes first; the tree sits faintly behind it. */
+@media (max-width: 900px) {
+  .sakura { height: 70vh; right: -28vw; opacity: .45; }
+}
+
+/* People who ask their system for less motion get a still tree, no falling
+   petals and the first word only. */
+@media (prefers-reduced-motion: reduce) {
+  .sakura__tree, .sakura__bloom, .sakura__glow, .bokeh { animation: none; }
+  .petals { display: none; }
+  .word-cycle__words > span { animation: none; }
+  .word-cycle__words > span:first-child { opacity: 1; }
+}
+
 /* ---------- Small screens ---------- */
+/* Once the sidebar wraps above the page, the menu items flow into rows. */
+@media (max-width: 860px) {
+  .sidebar { gap: 14px; padding: 14px; }
+  .nav, .nav-group { flex-direction: row; flex-wrap: wrap; gap: 6px; }
+  .nav-group__label, .vault-badge { display: none; }
+  .nav-link, .nav-link--sub { min-height: 40px; padding: 0 12px; font-size: 14px; white-space: nowrap; }
+  .nav-link--sub svg { display: none; }
+  .vault-badge + .user-chip { margin-top: 0; }
+}
 @media (max-width: 600px) {
   .app-shell { padding: 12px; gap: 12px; }
   .page-title { font-size: 26px; }

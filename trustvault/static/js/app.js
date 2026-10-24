@@ -36,6 +36,14 @@
     });
   });
 
+  // The menu's "Search documents" link ends in #q: put the cursor in the box.
+  function focusSearch() {
+    var box = document.getElementById("q");
+    if (location.hash === "#q" && box) box.focus();
+  }
+  focusSearch();
+  window.addEventListener("hashchange", focusSearch);
+
   // Upload: show the chosen file, and stop a file over 10 MB before it is
   // sent (the server rejects it anyway; this just saves the wait).
   var fileInput = document.querySelector("input[type=file][data-max-bytes]");
