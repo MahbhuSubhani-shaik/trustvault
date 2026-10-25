@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TrustVault — Sign in</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0B1026}
+a{color:#A5B4FC}a:hover{color:#C7D2FE}
+input::placeholder{color:rgba(226,232,255,0.6)}
+input:focus,button:focus-visible,a:focus-visible{outline:2px solid #A5B4FC;outline-offset:2px}
+</style>
+</helmet>
+<div style="min-height: 100vh; box-sizing: border-box; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #F1F5FF; color-scheme: dark; background-color: #0B1026; background-image: radial-gradient(40rem 30rem at 12% 10%, rgba(99,102,241,0.6), transparent 60%), radial-gradient(34rem 28rem at 90% 18%, rgba(20,184,166,0.45), transparent 60%), radial-gradient(44rem 34rem at 55% 100%, rgba(168,85,247,0.5), transparent 60%); display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 40px; padding: 48px clamp(16px, 5vw, 72px)">
+  <div style="flex: 1 1 460px; max-width: 600px; display: flex; flex-direction: column; gap: 36px">
+    <div style="display: flex; align-items: center; gap: 12px">
+      <span style="width: 44px; height: 44px; border-radius: 12px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); display: flex; align-items: center; justify-content: center">
+        <svg width="26" height="26" viewBox="0 0 32 32" fill="none" aria-hidden="true"><rect x="3" y="6" width="26" height="22" rx="3" stroke="#F1F5FF" stroke-width="2"></rect><path d="M3 12h26" stroke="#F1F5FF" stroke-width="2"></path><circle cx="16" cy="20" r="3.5" stroke="#5EEAD4" stroke-width="2"></circle><path d="M16 23.5V26" stroke="#5EEAD4" stroke-width="2"></path></svg>
+      </span>
+      <span style="font-size: 21px; font-weight: 700; letter-spacing: -0.01em">TrustVault</span>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 18px">
+      <h1 style="margin: 0; font-size: 46px; line-height: 1.08; font-weight: 600; letter-spacing: -0.02em">Share documents. Keep a record nobody can quietly rewrite.</h1>
+      <p style="margin: 0; font-size: 17px; line-height: 1.6; color: rgba(226,232,255,0.82)">Every upload, view, share and revoke is written to a hash-chained log. Change one entry and the chain breaks.</p>
+    </div>
+    <div style="background: rgba(255,255,255,0.07); backdrop-filter: blur(20px) saturate(140%); -webkit-backdrop-filter: blur(20px) saturate(140%); border: 1px solid rgba(255,255,255,0.16); border-radius: 16px; padding: 18px 20px; font-family: 'IBM Plex Mono', monospace; font-size: 13px; line-height: 2; color: rgba(226,232,255,0.82)">
+      <div>#1042 &#160;share.grant &#160;&#160;prev 9f3a…c21e</div>
+      <div>#1043 &#160;doc.view &#160;&#160;&#160;&#160;&#160;prev 4b77…08d2</div>
+      <div style="color: #6EE7B7">#1044 &#160;chain.verify &#160;ok · 1,044 entries</div>
+    </div>
+  </div>
+  <form style="flex: 0 1 440px; box-sizing: border-box; background: rgba(255,255,255,{{glass}}); backdrop-filter: blur(24px) saturate(150%); -webkit-backdrop-filter: blur(24px) saturate(150%); border: 1px solid rgba(255,255,255,0.22); border-radius: 22px; box-shadow: 0 20px 60px rgba(3,6,23,0.45), inset 0 1px 0 rgba(255,255,255,0.25); padding: 36px; display: flex; flex-direction: column; gap: 20px">
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <h2 style="margin: 0; font-size: 28px; font-weight: 600; letter-spacing: -0.01em">Sign in</h2>
+      <p style="margin: 0; font-size: 15px; color: rgba(226,232,255,0.78)">Use the account you registered with.</p>
+    </div>
+    <sc-if value="{{showError}}" hint-placeholder-val="{{ false }}">
+      <div role="alert" style="background: rgba(248,113,113,0.16); color: #FECACA; border: 1px solid rgba(248,113,113,0.4); border-radius: 10px; padding: 12px 14px; font-size: 14px">Username or password is incorrect.</div>
+    </sc-if>
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <label for="u" style="font-size: 14px; font-weight: 500">Username or email</label>
+      <input id="u" type="text" autocomplete="username" placeholder="ayaan" style="height: 46px; box-sizing: border-box; border: 1px solid rgba(255,255,255,0.22); border-radius: 12px; padding: 0 14px; font: inherit; font-size: 15px; background: rgba(255,255,255,0.07); color: #F1F5FF">
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <label for="p" style="font-size: 14px; font-weight: 500">Password</label>
+      <input id="p" type="password" autocomplete="current-password" style="height: 46px; box-sizing: border-box; border: 1px solid rgba(255,255,255,0.22); border-radius: 12px; padding: 0 14px; font: inherit; font-size: 15px; background: rgba(255,255,255,0.07); color: #F1F5FF">
+    </div>
+    <a href="Documents.dc.html" style="height: 46px; display: flex; align-items: center; justify-content: center; border-radius: 12px; background: linear-gradient(135deg, {{accent}}, #7C3AED); box-shadow: 0 8px 24px rgba(99,102,241,0.45); color: #FFFFFF; font-weight: 600; font-size: 15px; text-decoration: none">Sign in</a>
+    <p style="margin: 0; font-size: 14px; color: rgba(226,232,255,0.78)">No account yet? <a href="Register.dc.html">Create one</a></p>
+    <p style="margin: 0; font-size: 13px; color: rgba(226,232,255,0.72); border-top: 1px solid rgba(255,255,255,0.14); padding-top: 16px">Five failed attempts locks the account for 15 minutes. Every attempt is logged.</p>
+  </form>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#4F5BEA","options":["#4F5BEA","#0F766E","#BE185D","#1D4ED8"]},"glass":{"editor":"range","default":0.1,"min":0.04,"max":0.25,"step":0.01},"showError":{"editor":"boolean","default":false},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+renderVals() {
+return { accent: this.props.accent ?? '#4F5BEA', glass: this.props.glass ?? 0.1, showError: this.props.showError ?? false };
+}
+}
+</script>
+</body>
+</html>

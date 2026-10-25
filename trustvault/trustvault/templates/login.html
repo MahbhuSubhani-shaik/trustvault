@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% from "_icons.html" import logo %}
+{% from "_forms.html" import csrf %}
+{% block title %}Sign in{% endblock %}
+{% block shell %}
+<main class="login-shell">
+  <div class="login-hero">
+    <div class="brand brand--lg"><span class="brand-mark">{{ logo(26) }}</span><span>TrustVault</span></div>
+    <div class="login-hero__text">
+      <h1 class="hero-title">Share documents. Keep a record nobody can quietly rewrite.</h1>
+      <p class="hero-text">Every upload, view, share and revoke is written to a hash-chained log. Change one entry and the chain breaks.</p>
+    </div>
+    {# The design showed sample log rows here. Real rows would leak data to
+       anyone not signed in, so this explains the chain instead. #}
+    <div class="chain-box">
+      <div>entry n stores the hash of entry n−1</div>
+      <div>hash = HMAC-SHA256(prev_hash + entry)</div>
+      <div class="chain-box__ok">edit one entry → every later hash breaks</div>
+    </div>
+  </div>
+
+  {# No action: the form posts back to this URL, keeping any ?next= #}
+  <form class="glass glass-card login-card" method="post" data-busy="Signing in…">
+    {{ csrf() }}
+    <div class="card-head">
+      <h2 class="card-title">Sign in</h2>
+      <p class="card-subtitle">Use the account you registered with.</p>
+    </div>
+    {% include "_flashes.html" %}
+    {% if error %}<div class="alert alert-error" role="alert">{{ error }}</div>{% endif %}
+
+    <!-- ROLE SELECTOR ADDED HERE -->
+    <div class="field">
+      <label class="label">Choose your role</label>
+      <div style="display: flex; gap: 10px; margin-top: 5px;">
+        <label style="flex: 1; display: flex; flex-direction: column; align-items: center; padding: 10px; border: 1px solid var(--border-color, #d1d5db); border-radius: 8px; cursor: pointer; background: rgba(255,255,255,0.05);">
+          <input type="radio" name="role" value="admin" style="margin-bottom: 4px;">
+          <span style="font-size: 12px;">Admin</span>
+        </label>
+        <label style="flex: 1; display: flex; flex-direction: column; align-items: center; padding: 10px; border: 1px solid var(--border-color, #d1d5db); border-radius: 8px; cursor: pointer; background: rgba(255,255,255,0.05);">
+          <input type="radio" name="role" value="viewer" checked style="margin-bottom: 4px;">
+          <span style="font-size: 12px;">Viewer</span>
+        </label>
+        <label style="flex: 1; display: flex; flex-direction: column; align-items: center; padding: 10px; border: 1px solid var(--border-color, #d1d5db); border-radius: 8px; cursor: pointer; background: rgba(255,255,255,0.05);">
+          <input type="radio" name="role" value="owner" style="margin-bottom: 4px;">
+          <span style="font-size: 12px;">Owner</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="label" for="username">Username or email</label>
+      <input class="input" id="username" name="username" type="text" autocomplete="username" required value="{{ identifier }}">
+    </div>
+    <div class="field">
+      <label class="label" for="password">Password</label>
+      <input class="input" id="password" name="password" type="password" autocomplete="current-password" required>
+    </div>
+    <button class="btn btn-primary btn-block" type="submit">Sign in</button>
+    <p class="card-text">No account yet? <a href="{{ url_for('auth.register') }}">Create one</a></p>
+    <p class="card-footnote">Five failed attempts locks the account for 15 minutes. Every attempt is logged.</p>
+  </form>
+</main>
+{% endblock %}

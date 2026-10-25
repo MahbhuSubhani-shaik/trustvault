@@ -1,0 +1,15 @@
+{# Helpers for showing server-side validation errors next to a field. #}
+
+{# Attributes for an <input>: marks it invalid and links it to its messages. #}
+{% macro invalid(errors, name, hint_id=None) -%}
+{%- if errors.get(name) %} aria-invalid="true" aria-describedby="{{ name }}-error{{ ' ' ~ hint_id if hint_id else '' }}"
+{%- elif hint_id %} aria-describedby="{{ hint_id }}"{% endif -%}
+{%- endmacro %}
+
+{% macro error(errors, name) -%}
+{%- if errors.get(name) %}<span class="field-error" id="{{ name }}-error">{{ errors[name] }}</span>{% endif -%}
+{%- endmacro %}
+
+{% macro csrf() -%}
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+{%- endmacro %}

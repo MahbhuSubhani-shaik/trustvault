@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% block title %}Access denied{% endblock %}
+{% block body_class %}theme-denied{% endblock %}
+{% block shell %}
+<main class="card-shell">
+  <div class="glass glass-card glass-card--wide">
+    <div class="status-mark">
+      <span class="status-mark__icon status-mark__icon--danger">{{ icon('lock', 26) }}</span>
+      <span class="status-mark__code status-mark__code--danger mono">403 · Forbidden</span>
+    </div>
+    <h1 class="card-title">You don’t have access to this</h1>
+    <p class="lead">It may not have been shared with you, the share may have expired, or the owner revoked it. If you think this is a mistake, ask the document’s owner.</p>
+    {% if entry %}
+    <div class="code-box mono">
+      <div>This attempt was recorded as audit entry #{{ entry.id }}</div>
+      <div class="code-box__meta">access.denied · {{ entry.created_at | ist }} · {{ entry.ip }}</div>
+    </div>
+    {% endif %}
+    <div class="actions">
+      <a class="btn btn-primary" href="{{ url_for('documents.index') }}">Back to documents</a>
+    </div>
+  </div>
+</main>
+{% endblock %}

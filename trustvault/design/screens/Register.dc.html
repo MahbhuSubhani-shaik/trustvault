@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TrustVault — Create account</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0B1026}
+a{color:#A5B4FC}a:hover{color:#C7D2FE}
+input::placeholder{color:rgba(226,232,255,0.6)}
+input:focus,button:focus-visible,a:focus-visible{outline:2px solid #A5B4FC;outline-offset:2px}
+</style>
+</helmet>
+<div style="min-height: 100vh; box-sizing: border-box; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #F1F5FF; color-scheme: dark; background-color: #0B1026; background-image: radial-gradient(38rem 30rem at 85% 8%, rgba(99,102,241,0.6), transparent 60%), radial-gradient(34rem 28rem at 8% 40%, rgba(20,184,166,0.42), transparent 60%), radial-gradient(44rem 34rem at 60% 100%, rgba(168,85,247,0.5), transparent 60%); display: flex; flex-direction: column; align-items: center; padding: 48px 16px; gap: 28px">
+  <a href="Main.dc.html" style="display: flex; align-items: center; gap: 10px; color: #F1F5FF; text-decoration: none">
+    <span style="width: 40px; height: 40px; border-radius: 11px; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center">
+      <svg width="24" height="24" viewBox="0 0 32 32" fill="none" aria-hidden="true"><rect x="3" y="6" width="26" height="22" rx="3" stroke="#F1F5FF" stroke-width="2"></rect><path d="M3 12h26" stroke="#F1F5FF" stroke-width="2"></path><circle cx="16" cy="20" r="3.5" stroke="#5EEAD4" stroke-width="2"></circle><path d="M16 23.5V26" stroke="#5EEAD4" stroke-width="2"></path></svg>
+    </span>
+    <span style="font-size: 19px; font-weight: 700">TrustVault</span>
+  </a>
+  <form style="width: 100%; max-width: 480px; box-sizing: border-box; background: rgba(255,255,255,0.1); backdrop-filter: blur(24px) saturate(150%); -webkit-backdrop-filter: blur(24px) saturate(150%); border: 1px solid rgba(255,255,255,0.22); border-radius: 22px; box-shadow: 0 20px 60px rgba(3,6,23,0.45), inset 0 1px 0 rgba(255,255,255,0.25); padding: 36px; display: flex; flex-direction: column; gap: 18px">
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <h1 style="margin: 0; font-size: 26px; font-weight: 600; letter-spacing: -0.01em">Create your account</h1>
+      <p style="margin: 0; font-size: 15px; color: rgba(226,232,255,0.8)">New accounts start with the <b style="font-weight: 600; color: #FFFFFF">member</b> role. Only an admin can change roles.</p>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <label for="ru" style="font-size: 14px; font-weight: 500">Username</label>
+      <input id="ru" type="text" value="ayaan" autocomplete="username" style="height: 46px; box-sizing: border-box; border: 1px solid rgba(255,255,255,0.22); border-radius: 12px; padding: 0 14px; font: inherit; font-size: 15px; background: rgba(255,255,255,0.07); color: #F1F5FF">
+      <span style="font-size: 13px; color: rgba(226,232,255,0.72)">3–30 characters: letters, numbers, underscore.</span>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <label for="re" style="font-size: 14px; font-weight: 500">Email</label>
+      <input id="re" type="email" autocomplete="email" placeholder="you@example.com" style="height: 46px; box-sizing: border-box; border: 1px solid rgba(255,255,255,0.22); border-radius: 12px; padding: 0 14px; font: inherit; font-size: 15px; background: rgba(255,255,255,0.07); color: #F1F5FF">
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <label for="rp" style="font-size: 14px; font-weight: 500">Password</label>
+      <input id="rp" type="password" value="correcthorse" autocomplete="new-password" style="height: 46px; box-sizing: border-box; border: 1px solid rgba(255,255,255,0.22); border-radius: 12px; padding: 0 14px; font: inherit; font-size: 15px; background: rgba(255,255,255,0.07); color: #F1F5FF">
+      <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px" aria-hidden="true">
+        <span style="height: 4px; border-radius: 2px; background: #5EEAD4"></span>
+        <span style="height: 4px; border-radius: 2px; background: #5EEAD4"></span>
+        <span style="height: 4px; border-radius: 2px; background: #5EEAD4"></span>
+        <span style="height: 4px; border-radius: 2px; background: rgba(255,255,255,0.18)"></span>
+      </div>
+      <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; font-size: 13px">
+        <li style="color: #6EE7B7">✓ At least 12 characters</li>
+        <li style="color: #6EE7B7">✓ Not in the common-passwords list</li>
+        <li style="color: rgba(226,232,255,0.72)">○ Includes a number or symbol (recommended)</li>
+      </ul>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 6px">
+      <label for="rc" style="font-size: 14px; font-weight: 500">Confirm password</label>
+      <input id="rc" type="password" value="correcthors" autocomplete="new-password" aria-invalid="true" aria-describedby="rcerr" style="height: 46px; box-sizing: border-box; border: 1px solid rgba(248,113,113,0.75); border-radius: 12px; padding: 0 14px; font: inherit; font-size: 15px; background: rgba(248,113,113,0.08); color: #F1F5FF">
+      <span id="rcerr" style="font-size: 13px; color: #FCA5A5">Passwords don’t match.</span>
+    </div>
+    <a href="Main.dc.html" style="height: 46px; display: flex; align-items: center; justify-content: center; border-radius: 12px; background: linear-gradient(135deg, #4F5BEA, #7C3AED); box-shadow: 0 8px 24px rgba(99,102,241,0.45); color: #FFFFFF; font-weight: 600; font-size: 15px; text-decoration: none">Create account</a>
+    <p style="margin: 0; font-size: 14px; color: rgba(226,232,255,0.78); text-align: center">Already registered? <a href="Main.dc.html">Sign in</a></p>
+  </form>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

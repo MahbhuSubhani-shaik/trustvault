@@ -1,0 +1,57 @@
+{% from "_icons.html" import logo, icon %}
+{% from "_forms.html" import csrf %}
+{#- One nav item. It is marked current when the request is handled by the same
+    blueprint, so /documents/42 still highlights "Documents". -#}
+{% macro nav_link(endpoint, label, icon_name) -%}
+{%- set current = (request.endpoint or '').split('.')[0] == endpoint.split('.')[0] -%}
+<a class="nav-link" href="{{ url_for(endpoint) }}"{% if current %} aria-current="page"{% endif %}>{{ icon(icon_name) }}{{ label }}</a>
+{%- endmacro %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TrustVault — {% block title %}{% endblock %}</title>
+  <link rel="icon" href="{{ url_for('static', filename='img/logo.svg') }}" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+</head>
+<body class="{% block body_class %}{% endblock %}">
+{#- Signed-in pages use this sidebar shell. Login, register and error pages
+    replace the whole block with a centred glass card. -#}
+{% block shell %}
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="app-shell">
+  <nav class="glass sidebar" aria-label="Main">
+    <a class="brand" href="{{ url_for('documents.index') }}">{{ logo() }}<span>TrustVault</span></a>
+    <div class="nav">
+      {{ nav_link('documents.index', 'Documents', 'file') }}
+      {{ nav_link('audit.index', 'Audit trail', 'link') }}
+    </div>
+    {% if g.user %}
+    <div class="user-chip">
+      <span class="avatar" aria-hidden="true">{{ g.user.username[:2] | upper }}</span>
+      <div class="user-chip__text">
+        <span class="user-chip__name">{{ g.user.username }}</span>
+        <span class="user-chip__role">{{ g.user.role }}</span>
+      </div>
+      {# Sign out is a POST (the design had a link): a GET could be triggered
+         by any page with <img src="/logout">. #}
+      <form class="user-chip__signout" method="post" action="{{ url_for('auth.logout') }}">
+        {{ csrf() }}
+        <button class="link-button" type="submit">Sign out</button>
+      </form>
+    </div>
+    {% endif %}
+  </nav>
+  <main class="main" id="main">
+    {% include "_flashes.html" %}
+    {% block content %}{% endblock %}
+  </main>
+</div>
+{% endblock %}
+</body>
+</html>

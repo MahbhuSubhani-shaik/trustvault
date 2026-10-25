@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TrustVault — Document</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#0B1026}
+a{color:#A5B4FC}a:hover{color:#C7D2FE}
+input::placeholder{color:rgba(226,232,255,0.6)}
+option{background:#151B3D;color:#F1F5FF}
+input:focus,select:focus,button:focus-visible,a:focus-visible{outline:2px solid #A5B4FC;outline-offset:2px}
+</style>
+</helmet>
+<div style="min-height: 100vh; box-sizing: border-box; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #F1F5FF; color-scheme: dark; background-color: #0B1026; background-image: radial-gradient(40rem 30rem at 30% 2%, rgba(99,102,241,0.55), transparent 60%), radial-gradient(36rem 30rem at 95% 55%, rgba(20,184,166,0.38), transparent 60%), radial-gradient(44rem 34rem at 15% 100%, rgba(168,85,247,0.45), transparent 60%); display: flex; flex-wrap: wrap; gap: 20px; padding: 20px">
+  <nav aria-label="Main" style="flex: 1 1 240px; max-width: 100%; box-sizing: border-box; background: rgba(255,255,255,0.08); backdrop-filter: blur(24px) saturate(150%); -webkit-backdrop-filter: blur(24px) saturate(150%); border: 1px solid rgba(255,255,255,0.18); border-radius: 22px; box-shadow: 0 12px 40px rgba(3,6,23,0.4); padding: 22px 14px; display: flex; flex-direction: column; gap: 28px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px">
+      <svg width="26" height="26" viewBox="0 0 32 32" fill="none" aria-hidden="true"><rect x="3" y="6" width="26" height="22" rx="3" stroke="#F1F5FF" stroke-width="2"></rect><path d="M3 12h26" stroke="#F1F5FF" stroke-width="2"></path><circle cx="16" cy="20" r="3.5" stroke="#5EEAD4" stroke-width="2"></circle><path d="M16 23.5V26" stroke="#5EEAD4" stroke-width="2"></path></svg>
+      <span style="font-size: 18px; font-weight: 700">TrustVault</span>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 4px">
+      <a href="Documents.dc.html" aria-current="page" style="display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 12px; border-radius: 12px; background: rgba(255,255,255,0.16); border: 1px solid rgba(255,255,255,0.22); color: #FFFFFF; text-decoration: none; font-size: 15px; font-weight: 500">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"></path><path d="M14 3v6h6"></path></svg>Documents</a>
+      <a href="Audit.dc.html" style="display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 12px; border-radius: 12px; border: 1px solid transparent; color: rgba(226,232,255,0.85); text-decoration: none; font-size: 15px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"></path><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"></path></svg>Audit trail</a>
+      <a href="Denied.dc.html" style="display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 12px; border-radius: 12px; border: 1px solid transparent; color: rgba(226,232,255,0.85); text-decoration: none; font-size: 15px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="9" cy="8" r="4"></circle><path d="M2 21a7 7 0 0 1 14 0"></path><path d="M17 11h5M19.5 8.5v5"></path></svg>Users <span style="margin-left: auto; font-size: 11px; font-weight: 600; letter-spacing: 0.04em; color: rgba(226,232,255,0.8); border: 1px solid rgba(255,255,255,0.25); border-radius: 6px; padding: 1px 6px">ADMIN</span></a>
+    </div>
+    <div style="margin-top: auto; border-top: 1px solid rgba(255,255,255,0.14); padding-top: 16px; display: flex; align-items: center; gap: 10px">
+      <span aria-hidden="true" style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #4F5BEA, #14B8A6); color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 14px">AY</span>
+      <div style="display: flex; flex-direction: column; min-width: 0">
+        <span style="font-size: 14px; font-weight: 500">ayaan</span>
+        <span style="font-size: 12px; color: rgba(226,232,255,0.72)">member</span>
+      </div>
+      <a href="Main.dc.html" style="margin-left: auto; font-size: 13px">Sign out</a>
+    </div>
+  </nav>
+  <main style="flex: 999 1 560px; min-width: 0; box-sizing: border-box; padding: 12px clamp(0px, 2vw, 24px); display: flex; flex-direction: column; gap: 22px">
+    <a href="Documents.dc.html" style="font-size: 14px; text-decoration: none">← Documents</a>
+    <header style="display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 16px">
+      <div style="display: flex; gap: 14px; align-items: flex-start; min-width: 0">
+        <span aria-hidden="true" style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 500; color: #C7D2FE; background: rgba(99,102,241,0.25); border: 1px solid rgba(165,180,252,0.35); border-radius: 12px; padding: 12px 8px; min-width: 48px; text-align: center">PDF</span>
+        <div style="display: flex; flex-direction: column; gap: 6px; min-width: 0">
+          <h1 style="margin: 0; font-size: 28px; font-weight: 600; letter-spacing: -0.01em; overflow-wrap: anywhere">Vendor contract — signed.pdf</h1>
+          <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; font-size: 14px; color: rgba(226,232,255,0.78)">
+            <span>Owned by you</span><span>412 KB</span><span>Uploaded 21 Oct 2026, 10:14</span>
+            <span style="font-size: 12px; font-weight: 600; color: #A7F3D0; background: rgba(16,185,129,0.2); border: 1px solid rgba(110,231,183,0.35); border-radius: 999px; padding: 2px 10px">Integrity verified</span>
+          </div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap">
+        <button type="button" style="min-height: 46px; padding: 0 20px; border-radius: 12px; border: 0; background: linear-gradient(135deg, #4F5BEA, #7C3AED); box-shadow: 0 8px 24px rgba(99,102,241,0.45); color: #FFFFFF; font: inherit; font-weight: 600; font-size: 15px; cursor: pointer">Download</button>
+        <button type="button" style="min-height: 46px; padding: 0 20px; border-radius: 12px; border: 1px solid rgba(248,113,113,0.5); background: rgba(248,113,113,0.12); color: #FCA5A5; font: inherit; font-weight: 600; font-size: 15px; cursor: pointer">Delete</button>
+      </div>
+    </header>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); gap: 20px; align-items: start">
+      <div style="display: flex; flex-direction: column; gap: 20px; min-width: 0">
+        <section aria-labelledby="share-h" style="background: rgba(255,255,255,0.08); backdrop-filter: blur(24px) saturate(150%); -webkit-backdrop-filter: blur(24px) saturate(150%); border: 1px solid rgba(255,255,255,0.18); border-radius: 20px; box-shadow: 0 12px 40px rgba(3,6,23,0.35); padding: 24px; display: flex; flex-direction: column; gap: 16px">
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <h2 id="share-h" style="margin: 0; font-size: 18px; font-weight: 600">Share with a person</h2>
+            <p style="margin: 0; font-size: 14px; color: rgba(226,232,255,0.78)">Only the owner can share. Access is checked on the server for every request.</p>
+          </div>
+          <form style="display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end">
+            <div style="flex: 2 1 200px; display: flex; flex-direction: column; gap: 6px">
+              <label for="su" style="font-size: 14px; font-weight: 500">Username</label>
+              <input id="su" type="text" placeholder="e.g. meera" style="height: 46px; box-sizing: border-box; border: 1px solid rgba(255,255,255,0.22); border-radius: 12px; padding: 0 14px; font: inherit; font-size: 15px; background: rgba(255,255,255,0.07); color: #F1F5FF">
+            </div>
+            <div style="flex: 1 1 150px; display: flex; flex-direction: column; gap: 6px">
+              <label for="sp" style="font-size: 14px; font-weight: 500">Permission</label>
+              <select id="sp" style="height: 46px; box-sizing: border-box; border: 1px solid rgba(255,255,255,0.22); border-radius: 12px; padding: 0 10px; font: inherit; font-size: 15px; background: rgba(255,255,255,0.07); color: #F1F5FF">
+                <option>View only</option>
+                <option>Can download</option>
+              </select>
+            </div>
+            <div style="flex: 1 1 150px; display: flex; flex-direction: column; gap: 6px">
+              <label for="sx" style="font-size: 14px; font-weight: 500">Expires</label>
+              <input id="sx" type="date" value="2026-10-31" style="height: 46px; box-sizing: border-box; border: 1px solid rgba(255,255,255,0.22); border-radius: 12px; padding: 0 10px; font: inherit; font-size: 15px; background: rgba(255,255,255,0.07); color: #F1F5FF">
+            </div>
+            <button type="button" style="min-height: 46px; padding: 0 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.18); color: #FFFFFF; font: inherit; font-weight: 600; font-size: 15px; cursor: pointer">Share</button>
+          </form>
+        </section>
+
+        <section aria-labelledby="who-h" style="background: rgba(255,255,255,0.08); backdrop-filter: blur(24px) saturate(150%); -webkit-backdrop-filter: blur(24px) saturate(150%); border: 1px solid rgba(255,255,255,0.18); border-radius: 20px; box-shadow: 0 12px 40px rgba(3,6,23,0.35); padding: 24px; display: flex; flex-direction: column; gap: 4px">
+          <h2 id="who-h" style="margin: 0 0 8px; font-size: 18px; font-weight: 600">Who has access</h2>
+          <div style="display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1)">
+            <span aria-hidden="true" style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #4F5BEA, #14B8A6); color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px">AY</span>
+            <div style="flex: 1; min-width: 0"><div style="font-weight: 500">ayaan (you)</div><div style="font-size: 13px; color: rgba(226,232,255,0.72)">Owner</div></div>
+          </div>
+          <sc-for list="{{people}}" as="p" hint-placeholder-count="2">
+            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1)">
+              <span aria-hidden="true" style="width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.25); color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px">{{p.initials}}</span>
+              <div style="flex: 1 1 160px; min-width: 0"><div style="font-weight: 500">{{p.name}}</div><div style="font-size: 13px; color: rgba(226,232,255,0.72)">{{p.detail}}</div></div>
+              <sc-if value="{{p.active}}" hint-placeholder-val="{{ true }}">
+                <button type="button" onClick="{{p.revoke}}" aria-label="{{p.revokeLabel}}" style="min-height: 44px; padding: 0 16px; border-radius: 12px; border: 1px solid rgba(248,113,113,0.45); background: rgba(248,113,113,0.1); color: #FCA5A5; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer">Revoke</button>
+              </sc-if>
+              <sc-if value="{{p.revoked}}" hint-placeholder-val="{{ false }}">
+                <span style="font-size: 13px; font-weight: 600; color: #FECACA; background: rgba(248,113,113,0.18); border: 1px solid rgba(248,113,113,0.35); border-radius: 999px; padding: 4px 10px">Revoked · logged</span>
+              </sc-if>
+            </div>
+          </sc-for>
+        </section>
+
+        <section aria-labelledby="int-h" style="background: rgba(255,255,255,0.08); backdrop-filter: blur(24px) saturate(150%); -webkit-backdrop-filter: blur(24px) saturate(150%); border: 1px solid rgba(255,255,255,0.18); border-radius: 20px; box-shadow: 0 12px 40px rgba(3,6,23,0.35); padding: 24px; display: flex; flex-direction: column; gap: 10px">
+          <h2 id="int-h" style="margin: 0; font-size: 18px; font-weight: 600">File integrity</h2>
+          <div style="font-size: 13px; color: rgba(226,232,255,0.72)">SHA-256 at upload</div>
+          <code style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; background: rgba(3,6,23,0.35); border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 10px 12px; overflow-wrap: anywhere; color: #5EEAD4">3a7bd3e2360a3d29eea436fcfb7e44c735d117c42d1c1835420b6b9942dd4f1b</code>
+          <div style="font-size: 13px; color: rgba(226,232,255,0.78)">Recomputed on every download. A mismatch blocks the download and writes <span style="font-family: 'IBM Plex Mono', monospace">file.integrity_fail</span> to the log.</div>
+        </section>
+      </div>
+
+      <section aria-labelledby="act-h" style="background: rgba(255,255,255,0.08); backdrop-filter: blur(24px) saturate(150%); -webkit-backdrop-filter: blur(24px) saturate(150%); border: 1px solid rgba(255,255,255,0.18); border-radius: 20px; box-shadow: 0 12px 40px rgba(3,6,23,0.35); padding: 24px; display: flex; flex-direction: column; gap: 4px; min-width: 0">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 8px">
+          <h2 id="act-h" style="margin: 0; font-size: 18px; font-weight: 600">Activity on this file</h2>
+          <a href="Audit.dc.html" style="font-size: 14px">Full audit trail →</a>
+        </div>
+        <sc-for list="{{events}}" as="e" hint-placeholder-count="6">
+          <div style="display: grid; grid-template-columns: 14px minmax(0, 1fr); gap: 12px; padding: 10px 0">
+            <span aria-hidden="true" style="{{e.dot}}"></span>
+            <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+              <div style="font-size: 14px"><b style="font-weight: 600">{{e.actor}}</b> {{e.text}}</div>
+              <div style="font-size: 12px; color: rgba(226,232,255,0.7); font-family: 'IBM Plex Mono', monospace">#{{e.id}} · {{e.when}} · {{e.ip}}</div>
+            </div>
+          </div>
+        </sc-for>
+      </section>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1060}}'>
+class Component extends DCLogic {
+constructor(p) { super(p); this.state = { revoked: {} }; }
+renderVals() {
+const base = [
+{ id: 'meera', initials: 'ME', name: 'meera', perm: 'Can download', exp: 'expires 31 Oct 2026' },
+{ id: 'ravi', initials: 'RV', name: 'ravi', perm: 'View only', exp: 'no expiry' }
+];
+const rv = this.state.revoked;
+const people = base.map(p => ({ ...p,
+detail: p.perm + ' · ' + p.exp,
+active: !rv[p.id], revoked: !!rv[p.id],
+revokeLabel: 'Revoke access for ' + p.name,
+revoke: () => this.setState({ revoked: { ...rv, [p.id]: true } }) }));
+const dot = (c) => 'width: 10px; height: 10px; border-radius: 50%; margin-top: 5px; background: ' + c + '; box-shadow: 0 0 10px ' + c;
+const ev = [
+{ id: 1051, actor: 'ravi', text: 'viewed the file', when: '24 Oct, 19:56', ip: '10.0.4.21', c: '#CBD5E1' },
+{ id: 1049, actor: 'meera', text: 'downloaded the file', when: '24 Oct, 11:02', ip: '10.0.4.9', c: '#6EE7B7' },
+{ id: 1047, actor: 'kiran', text: 'was denied access (not shared)', when: '23 Oct, 22:40', ip: '10.0.7.3', c: '#FCA5A5' },
+{ id: 1046, actor: 'you', text: 'shared with ravi · view only', when: '22 Oct, 09:15', ip: '10.0.4.2', c: '#A5B4FC' },
+{ id: 1045, actor: 'you', text: 'shared with meera · can download · expires 31 Oct', when: '21 Oct, 10:20', ip: '10.0.4.2', c: '#A5B4FC' },
+{ id: 1044, actor: 'you', text: 'uploaded the file', when: '21 Oct, 10:14', ip: '10.0.4.2', c: '#A5B4FC' }
+];
+const extra = Object.keys(rv).map((k, i) => ({ id: 1052 + i, actor: 'you', text: 'revoked access for ' + k, when: 'just now', ip: '10.0.4.2', c: '#FCA5A5' })).reverse();
+const events = extra.concat(ev).map(e => ({ ...e, dot: dot(e.c) }));
+return { people, events };
+}
+}
+</script>
+</body>
+</html>
