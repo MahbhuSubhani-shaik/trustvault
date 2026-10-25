@@ -28,6 +28,26 @@
     </div>
     {% include "_flashes.html" %}
     {% if error %}<div class="alert alert-error" role="alert">{{ error }}</div>{% endif %}
+
+    <!-- ROLE SELECTOR ADDED HERE -->
+    <div class="field">
+      <label class="label">Choose your role</label>
+      <div style="display: flex; gap: 10px; margin-top: 5px;">
+        <label style="flex: 1; display: flex; flex-direction: column; align-items: center; padding: 10px; border: 1px solid var(--border-color, #d1d5db); border-radius: 8px; cursor: pointer; background: rgba(255,255,255,0.05);">
+          <input type="radio" name="role" value="admin" style="margin-bottom: 4px;">
+          <span style="font-size: 12px;">Admin</span>
+        </label>
+        <label style="flex: 1; display: flex; flex-direction: column; align-items: center; padding: 10px; border: 1px solid var(--border-color, #d1d5db); border-radius: 8px; cursor: pointer; background: rgba(255,255,255,0.05);">
+          <input type="radio" name="role" value="viewer" checked style="margin-bottom: 4px;">
+          <span style="font-size: 12px;">Viewer</span>
+        </label>
+        <label style="flex: 1; display: flex; flex-direction: column; align-items: center; padding: 10px; border: 1px solid var(--border-color, #d1d5db); border-radius: 8px; cursor: pointer; background: rgba(255,255,255,0.05);">
+          <input type="radio" name="role" value="owner" style="margin-bottom: 4px;">
+          <span style="font-size: 12px;">Owner</span>
+        </label>
+      </div>
+    </div>
+
     <div class="field">
       <label class="label" for="username">Username or email</label>
       <input class="input" id="username" name="username" type="text" autocomplete="username" required value="{{ identifier }}">
