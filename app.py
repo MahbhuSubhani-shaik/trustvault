@@ -3,9 +3,14 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 # 1. Initialize the Flask app FIRST
 app = Flask(__name__)
 
-# (Optional: Add your app.config settings here, e.g., app.config['SECRET_KEY'] = '...')
+# (Optional: Add your app.config settings here, e.g., app.config['SECRET_KEY'] = 'your-secret-key')
 
-# 2. Then paste your login route below it
+# 2. Add a root route so visiting the main URL redirects to login
+@app.route('/')
+def index():
+    return redirect(url_for('login'))
+
+# 3. Your login route
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
@@ -29,6 +34,6 @@ def login():
             
     return render_template('login.html')
 
-# 3. Keep this at the very bottom of the file if you run locally
+# 4. Keep this at the very bottom of the file if you run locally
 if __name__ == '__main__':
     app.run(debug=True)
