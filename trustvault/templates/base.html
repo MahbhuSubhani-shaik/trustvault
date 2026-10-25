@@ -41,6 +41,9 @@
       </div>
       {{ nav_link(docs ~ '#upload', 'Upload document', 'plus') }}
       {{ nav_link(url_for('audit.index'), 'Activity logs', 'clock', section == 'audit') }}
+      {% if g.user and g.user.role == 'admin' %}
+      <a class="nav-link" href="{{ url_for('admin.users') }}"{% if section == 'admin' %} aria-current="page"{% endif %}>{{ icon('users') }}<span>Users</span><span class="nav-badge">ADMIN</span></a>
+      {% endif %}
     </div>
     {% if g.user %}
     <div class="vault-badge">

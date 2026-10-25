@@ -38,6 +38,7 @@ def call(browser, method, template, setup, **data):
     ("get", "/dashboard"), ("get", "/documents"), ("post", "/documents/upload"),
     *DOC_ROUTES,
     ("get", "/audit"), ("post", "/audit/verify"), ("get", "/audit/export.csv"),
+    ("get", "/admin/users"),
 ])
 def test_every_protected_route_requires_login(setup, anon, method, path):
     response = call(anon, method, path, setup)
@@ -201,6 +202,39 @@ def test_deleting_a_document_removes_its_shares(setup, db):
     setup["ayaan"].post(f"/documents/{setup['doc']}/delete")
     assert db.execute("SELECT COUNT(*) FROM shares").fetchone()[0] == 0
     assert setup["meera"].get(f"/documents/{setup['doc']}").status_code == 404
+
+
+# ------------------------------------------------------------------ admin users page
+
+def user_id(db, name):
+    return db.execute("SELECT id FROM users WHERE username = ?", (name,)).fetchone()["id"]
+
+
+def test_members_cannot_open_or_use_the_users_page(setup, db):
+    assert setup["kiran"].get("/admin/users").status_code == 403
+    assert audit_rows(db, "access.denied")[-1]["actor_name"] == "kiran"
+    response = setup["kiran"].post(f"/admin/users/{user_id(db, 'kiran')}/role", {"role": "admin"})
+    assert response.status_code == 403
+    assert db.execute("SELECT role FROM users WHERE username = 'kiran'").fetchone()["role"] == "member"
+
+
+def test_admin_can_change_roles_and_it_is_logged(setup, make_user, db):
+    admin = make_user("root_admin", role="admin")
+    assert "kiran" in admin.get("/admin/users").get_data(as_text=True)
+    before = db.execute("SELECT session_version FROM users WHERE username = 'kiran'").fetchone()[0]
+    admin.post(f"/admin/users/{user_id(db, 'kiran')}/role", {"role": "admin"})
+    row = db.execute("SELECT role, session_version FROM users WHERE username = 'kiran'").fetchone()
+    assert row["role"] == "admin" and row["session_version"] == before + 1  # signed out
+    assert audit_rows(db, "user.role_change")[-1]["target"] == "kiran → admin"
+    assert setup["kiran"].get("/dashboard").status_code == 302  # old session no longer valid
+
+
+def test_admin_cannot_change_their_own_role_or_set_unknown_roles(make_user, db):
+    admin = make_user("root_admin", role="admin")
+    admin.post(f"/admin/users/{user_id(db, 'root_admin')}/role", {"role": "member"})
+    assert db.execute("SELECT role FROM users WHERE username = 'root_admin'").fetchone()["role"] == "admin"
+    make_user("meera")
+    assert admin.post(f"/admin/users/{user_id(db, 'meera')}/role", {"role": "owner"}).status_code == 400
 
 
 # ------------------------------------------------------------------ dashboard

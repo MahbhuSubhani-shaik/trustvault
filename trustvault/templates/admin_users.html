@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% from "_forms.html" import csrf %}
+{% block title %}Users{% endblock %}
+{% block content %}
+<header class="page-header">
+  <div class="page-header__text">
+    <p class="eyebrow">Admin</p>
+    <h1 class="page-title">Users</h1>
+    <p class="page-subtitle">Every account and its role. Role changes sign the person out and are written to the audit trail. Admins get the full activity log, not other people’s documents.</p>
+  </div>
+</header>
+
+<div class="glass table-wrap">
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Username</th>
+        <th scope="col">Email</th>
+        <th scope="col">Role</th>
+        <th scope="col">Documents</th>
+        <th scope="col">Joined</th>
+        <th scope="col">Status</th>
+        <th scope="col"><span class="sr-only">Change role</span></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td class="strong">{{ u.username }}{% if u.id == g.user.id %} (you){% endif %}</td>
+        <td class="muted">{{ u.email }}</td>
+        <td><span class="pill {{ 'pill-owner' if u.role == 'admin' else 'pill-ok' }}">{{ u.role }}</span></td>
+        <td class="muted mono">{{ u.documents }}</td>
+        <td class="muted nowrap">{{ u.created_at | ist }}</td>
+        <td>{% if u.locked_until and u.locked_until > now %}<span class="pill pill-danger">Locked</span>{% else %}<span class="muted">Active</span>{% endif %}</td>
+        <td>
+          {% if u.id != g.user.id %}
+          <form method="post" action="{{ url_for('admin.change_role', user_id=u.id) }}" data-busy="Saving…">
+            {{ csrf() }}
+            <input type="hidden" name="role" value="{{ 'member' if u.role == 'admin' else 'admin' }}">
+            <button class="btn btn-secondary btn-sm" type="submit">{{ 'Make member' if u.role == 'admin' else 'Make admin' }}</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
