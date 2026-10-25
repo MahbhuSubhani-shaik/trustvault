@@ -32,11 +32,11 @@
       <p class="hero-text">Every upload, view, share and revoke is written to a hash-chained log. Change one entry and the chain breaks.</p>
     </div>
     {# The design showed sample log rows here. Real rows would leak data to
-       anyone not signed in, so this explains the chain instead. #}
+       anyone not signed in, so this explains the hash chain in plain words. #}
     <div class="chain-box">
-      <div>entry n stores the hash of entry n−1</div>
-      <div>hash = HMAC-SHA256(prev_hash + entry)</div>
-      <div class="chain-box__ok">edit one entry → every later hash breaks</div>
+      <div>1. every action is saved as a numbered entry</div>
+      <div>2. each entry is sealed to the one before it</div>
+      <div class="chain-box__ok">3. change one → “Verify chain” shows which</div>
     </div>
   </div>
 
