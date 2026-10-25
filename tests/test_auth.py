@@ -64,6 +64,24 @@ def test_unknown_role_choice_is_refused(anon, role):
     assert anon.get("/documents").status_code == 302
 
 
+def test_admin_account_can_be_created_from_config(app, db):
+    from conftest import Browser
+    configured = create_app(dict(app.config, ADMIN_USERNAME="boss", ADMIN_PASSWORD="violet-harbour-42"))
+    assert db.execute("SELECT role FROM users WHERE username = 'boss'").fetchone()["role"] == "admin"
+    assert Browser(configured).login("boss", role="admin").status_code == 302
+
+
+def test_config_never_promotes_an_existing_member(app, anon, db):
+    anon.register("boss")  # someone already holds the name
+    create_app(dict(app.config, ADMIN_USERNAME="boss", ADMIN_PASSWORD="violet-harbour-42"))
+    assert db.execute("SELECT role FROM users WHERE username = 'boss'").fetchone()["role"] == "member"
+
+
+def test_config_admin_with_a_weak_password_is_not_created(app, db):
+    create_app(dict(app.config, ADMIN_USERNAME="boss", ADMIN_PASSWORD="password1234"))
+    assert db.execute("SELECT COUNT(*) FROM users").fetchone()[0] == 0
+
+
 def test_usernames_are_unique_ignoring_case(anon, db):
     anon.register("ayaan")
     response = anon.register("AYAAN", email="other@example.com")

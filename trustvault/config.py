@@ -38,4 +38,9 @@ def load_config():
         # Without one, trusting that header would let anyone fake their IP in
         # the audit log.
         "TRUST_PROXY": _flag("TRUST_PROXY", "0"),
+        # Optional: create this admin account at startup (see cli.py). For hosts
+        # with no shell, such as Render's free plan.
+        "ADMIN_USERNAME": os.environ.get("ADMIN_USERNAME", ""),
+        "ADMIN_PASSWORD": os.environ.get("ADMIN_PASSWORD", ""),
+        "ADMIN_EMAIL": os.environ.get("ADMIN_EMAIL", ""),
     }
