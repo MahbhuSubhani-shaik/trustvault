@@ -10,17 +10,23 @@ reports exactly where it was changed if anyone edits it.
 ## What works
 
 Everything below is implemented and covered by the automated tests in `tests/`
-(104 passing, plus 1 expected failure that records a known limit; see
+(114 passing, plus 1 expected failure that records a known limit; see
 [THREATS.md](THREATS.md) for which test covers what).
 
 **Accounts**
 - Register with username, email and password. Passwords need 12+ characters, must
   not be in a common-passwords list or contain the username, and are stored as
   salted scrypt hashes. New accounts are always `member`.
-- Sign in with username or email. 5 wrong passwords lock the account for 15
+- Sign in with username or email, choosing **Member** or **Admin**. The choice is only
+  compared with the role stored for the account; a mismatch is refused and logged.
+  5 wrong passwords lock the account for 15
   minutes; every attempt is logged (`auth.login` / `auth.login_failed`).
 - Sign out ends every copy of the session, not just the one in this browser.
 - CSRF protection on every form.
+
+**Dashboard**
+- Counts of your documents, documents shared with you, people with access to your
+  files and blocked attempts in the last 7 days, plus your recent activity.
 
 **Documents**
 - Upload PDF, DOCX, XLSX, PNG, JPG or TXT up to 10 MB. The type is checked from the
@@ -56,8 +62,10 @@ every later hash, and the chain looks perfect. With an HMAC they also need
 
 ## Not built / known limits
 
-- There is no Users page in the web app. Roles are changed from the command line
-  (see below), so the sidebar has no "Users" link.
+- There is no Users page in the web app. Admins are made from the server (command
+  line, or `ADMIN_USERNAME`/`ADMIN_PASSWORD` at startup; see below).
+- On Render's free plan the app sleeps when idle and its data is reset whenever it
+  restarts; a host with a persistent disk keeps documents and the audit log.
 - No in-browser preview: "view" permission shows a document's details only.
 - Upload shows "Uploading…" while it runs, not a percentage. Verify shows
   "Verifying…", not a running count.
@@ -101,12 +109,25 @@ New accounts are members. To make one an admin (they will need to sign in again)
 flask --app app set-role <username> admin
 ```
 
+On a host without a shell (Render's free plan), set `ADMIN_USERNAME` and
+`ADMIN_PASSWORD` in the host's environment instead: that admin account is created
+when the app starts, if it doesn't already exist. Existing accounts are never promoted.
+
 ### Run the tests
 
 ```powershell
 python -m pip install -r requirements-dev.txt
 python -m pytest
 ```
+
+## Deploying (Render)
+
+New Web Service from this repository. Build command `pip install -r requirements.txt`,
+start command `gunicorn app:app`. Environment: `SECRET_KEY` and `AUDIT_KEY` (generated),
+`SESSION_COOKIE_SECURE=1`, `TRUST_PROXY=1`, `FLASK_DEBUG=0`, `PYTHON_VERSION=3.12.10`,
+and optionally `ADMIN_USERNAME`/`ADMIN_PASSWORD`. With a paid disk mounted at
+`/var/data`, also set `DATABASE_PATH=/var/data/trustvault.sqlite3` and
+`UPLOAD_DIR=/var/data/uploads` so data survives restarts.
 
 ## Deploying (PythonAnywhere)
 
@@ -140,6 +161,8 @@ trustvault/
   __init__.py           app factory: config checks, CSRF, blueprints
   access.py             authorisation: the one place that decides who may do what
   auth.py               register, sign in/out, lockout, login_required
+  dashboard.py          the signed-in user's own summary
+  cli.py                set-role command; admin from ADMIN_USERNAME at startup
   documents.py          list, upload, view, download, share, revoke, delete
   files.py              type detection, random storage, SHA-256
   audit.py              hash-chained log: record() and verify_chain()
@@ -151,4 +174,6 @@ trustvault/
 tests/                  pytest suite (authorisation, auth, uploads, audit chain)
 design/                 original design references (not served)
 THREATS.md              threat model mapped to code and tests
+PROMPTS.md              how AI was used, what it got wrong, how it was fixed
+tools/make_sakura.py    draws the sign-in page artwork
 ```
