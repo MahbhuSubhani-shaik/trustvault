@@ -49,6 +49,22 @@
     </div>
     {% include "_flashes.html" %}
     {% if error %}<div class="alert alert-error" role="alert">{{ error }}</div>{% endif %}
+    {# Only says what kind of account you expect. The server compares it with
+       the role stored for the account; choosing Admin never makes you one. #}
+    <fieldset class="role-choice">
+      <legend class="label">Sign in as</legend>
+      <div class="role-choice__options">
+        <label class="role-option">
+          <input type="radio" name="role" value="member"{% if chosen_role != 'admin' %} checked{% endif %}>
+          <span class="role-option__text"><span class="role-option__title">Member</span><span class="role-option__hint">Your documents</span></span>
+        </label>
+        <label class="role-option">
+          <input type="radio" name="role" value="admin"{% if chosen_role == 'admin' %} checked{% endif %}>
+          <span class="role-option__text"><span class="role-option__title">Admin</span><span class="role-option__hint">Full activity log</span></span>
+        </label>
+      </div>
+      <span class="hint">Your role is checked on the server. Only an admin account can sign in as Admin.</span>
+    </fieldset>
     <div class="field">
       <label class="label" for="username">Username or email</label>
       <input class="input" id="username" name="username" type="text" autocomplete="username" required value="{{ identifier }}">

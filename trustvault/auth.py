@@ -23,6 +23,7 @@ from .timeutil import from_db, now, now_db, to_db
 bp = Blueprint("auth", __name__)
 
 MAX_FAILED_LOGINS = 5
+ROLES = ("member", "admin")
 LOCKOUT = timedelta(minutes=15)
 MIN_PASSWORD, MAX_PASSWORD = 12, 128  # the max stops 1 MB "passwords" tying up the hasher
 USERNAME_RE = re.compile(r"[A-Za-z0-9_]{3,30}")
@@ -173,14 +174,22 @@ def login():
         return redirect(url_for("dashboard.index"))
     error = None
     identifier = ""
+    chosen_role = "member"
     if request.method == "POST":
         identifier = request.form.get("username", "").strip()[:254]
         password = request.form.get("password", "")[:MAX_PASSWORD]
+        # The "Sign in as" buttons. This is only what the person *expects* their
+        # account to be: it is compared with the role in the database below and
+        # never used to grant anything.
+        chosen_role = request.form.get("role", "member")
         user = _find_user(identifier)
         # Hash first, outside the write lock: it is deliberately slow.
         password_ok = check_password_hash(user["password_hash"] if user else _DUMMY_HASH, password)
 
-        if user is None:
+        if chosen_role not in ROLES:
+            chosen_role = "member"
+            error = "Choose “Member” or “Admin”."
+        elif user is None:
             audit.record("auth.login_failed", actor_name=identifier[:64], target="unknown user")
             error = "Username or password is incorrect."
         else:
@@ -195,6 +204,14 @@ def login():
                     audit.record("auth.login_failed", actor_name=user["username"],
                                  owner_id=user["id"], target="account locked")
                     error = "Too many failed sign-ins. This account is locked for 15 minutes."
+                elif password_ok and chosen_role != user["role"]:
+                    # Right password, wrong account type: picking "Admin" does
+                    # not make anyone an admin. Refused and logged. Only someone
+                    # who knows the password learns what the account really is.
+                    audit.record("auth.login_failed", actor_name=user["username"], owner_id=user["id"],
+                                 target=f"chose {chosen_role}, account is {user['role']}")
+                    error = (f"This account isn’t {'an admin' if chosen_role == 'admin' else 'a member'}. "
+                             f"Choose “{user['role'].capitalize()}” and sign in again.")
                 elif password_ok:
                     db.execute(
                         "UPDATE users SET failed_logins = 0, locked_until = NULL WHERE id = ?",
@@ -228,7 +245,7 @@ def login():
                 session["login_at"] = int(time.time())
                 return redirect(safe_next(request.args.get("next")))
 
-    return render_template("login.html", error=error, identifier=identifier)
+    return render_template("login.html", error=error, identifier=identifier, chosen_role=chosen_role)
 
 
 @bp.post("/logout")

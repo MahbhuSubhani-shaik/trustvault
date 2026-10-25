@@ -68,9 +68,9 @@ class Browser:
             "password": password, "confirm": password, **extra,
         })
 
-    def login(self, username, password=PASSWORD, next_url=None):
+    def login(self, username, password=PASSWORD, next_url=None, role="member"):
         path = "/login" + (f"?next={quote(next_url, safe='')}" if next_url else "")
-        return self.post(path, {"username": username, "password": password})
+        return self.post(path, {"username": username, "password": password, "role": role})
 
     def upload(self, filename, data=PDF, content_type=None):
         file = (io.BytesIO(data), filename, content_type) if content_type else (io.BytesIO(data), filename)
@@ -96,7 +96,7 @@ def make_user(app):
         if role != "member":
             result = app.test_cli_runner().invoke(args=["set-role", username, role])
             assert result.exit_code == 0, result.output
-        browser.login(username)
+        browser.login(username, role=role)
         return browser
     return _make
 

@@ -343,6 +343,39 @@ option { background: #151B3D; color: var(--text); }
 .chain-box__ok { color: var(--ok); }
 .login-card { flex: 0 1 440px; gap: 20px; }
 
+/* "Sign in as" Member / Admin buttons */
+.role-choice { margin: 0; padding: 0; border: 0; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.role-choice legend { padding: 0; margin-bottom: 8px; }
+.role-choice__options { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.role-option {
+  min-height: 56px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(255, 255, 255, .22);
+  border-radius: var(--radius-ctl);
+  background: rgba(255, 255, 255, .05);
+  cursor: pointer;
+}
+.role-option:hover { background: rgba(255, 255, 255, .09); }
+.role-option:has(input:checked) { border-color: var(--link); background: rgba(99, 102, 241, .18); }
+.role-option input {
+  flex: none;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  border: 2px solid rgba(255, 255, 255, .45);
+  border-radius: 50%;
+}
+.role-option input:checked { border-color: var(--link); background: radial-gradient(circle, var(--link) 0 40%, transparent 45%); }
+.role-option input:focus-visible { outline: 2px solid var(--link); outline-offset: 2px; }
+.role-option__text { display: flex; flex-direction: column; min-width: 0; }
+.role-option__title { font-size: 14px; font-weight: 600; }
+.role-option__hint { font-size: 12px; color: var(--text-faint); }
+
 /* ---------- Password rules (register) ---------- */
 .checklist {
   margin: 0;

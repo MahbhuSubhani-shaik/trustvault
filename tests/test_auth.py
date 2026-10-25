@@ -40,6 +40,30 @@ def test_role_cannot_be_chosen_at_registration(anon, db):
     assert db.execute("SELECT role FROM users").fetchone()["role"] == "member"
 
 
+def test_choosing_admin_at_sign_in_does_not_make_you_admin(anon, db):
+    anon.register("ayaan")
+    response = anon.login("ayaan", role="admin")  # right password, wrong role
+    assert response.status_code == 200  # not signed in
+    assert "isn’t an admin" in response.get_data(as_text=True)
+    assert anon.get("/documents").status_code == 302
+    assert db.execute("SELECT role FROM users").fetchone()["role"] == "member"
+    assert audit_rows(db, "auth.login_failed")[-1]["target"] == "chose admin, account is member"
+
+
+def test_admin_must_choose_admin(app, anon):
+    anon.register("root_admin")
+    app.test_cli_runner().invoke(args=["set-role", "root_admin", "admin"])
+    assert anon.login("root_admin", role="member").status_code == 200
+    assert anon.login("root_admin", role="admin").status_code == 302
+
+
+@pytest.mark.parametrize("role", ["owner", "superuser", ""])
+def test_unknown_role_choice_is_refused(anon, role):
+    anon.register("ayaan")
+    assert anon.login("ayaan", role=role).status_code == 200
+    assert anon.get("/documents").status_code == 302
+
+
 def test_usernames_are_unique_ignoring_case(anon, db):
     anon.register("ayaan")
     response = anon.register("AYAAN", email="other@example.com")
